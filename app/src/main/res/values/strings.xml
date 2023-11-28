@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MeetRefApp</string>
+    <string name="get_roster">Get Roster</string>
+</resources>
