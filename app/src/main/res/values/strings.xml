@@ -3,4 +3,7 @@
     <string name="get_roster">Get Roster</string>
     <string name="no_contacts_added">No contacts added</string>
     <string name="failed_to_load_contacts">Failed to load contacts</string>
+    <string name="jid">Jid</string>
+    <string name="username">Username</string>
+    <string name="contentdescription">contentDescription</string>
 </resources>

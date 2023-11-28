@@ -1,10 +1,11 @@
-package com.indra.iscs.meetrefapp
+package com.indra.iscs.meetrefapp.components
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.indra.iscs.meetrefapp.R
 import org.jivesoftware.smack.roster.RosterEntry
 
 class RosterAdapter : RecyclerView.Adapter<RosterAdapter.RosterViewHolder>() {
