@@ -6,4 +6,5 @@
     <string name="jid">Jid</string>
     <string name="username">Username</string>
     <string name="contentdescription">contentDescription</string>
+    <string name="no_name_available">No name available</string>
 </resources>

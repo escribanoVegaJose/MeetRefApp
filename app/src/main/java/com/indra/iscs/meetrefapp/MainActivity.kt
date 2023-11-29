@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     private fun initViews() {
         val recyclerView: RecyclerView = findViewById(R.id.recyclerview_roster)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        rosterAdapter = RosterAdapter()
+        rosterAdapter = RosterAdapter(xmppConnectionManager, this)
         recyclerView.adapter = rosterAdapter
         imageViewProfile = findViewById(R.id.imageView_profile)
         textViewJid = findViewById(R.id.textView_jid)
@@ -75,7 +75,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
     override fun onDestroy() {
         super.onDestroy()

@@ -5,9 +5,12 @@ import org.jivesoftware.smack.ConnectionConfiguration
 import org.jivesoftware.smack.roster.Roster
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
+import org.jivesoftware.smack.packet.Presence
+import org.jxmpp.jid.impl.JidCreate
 
 class XmppConnectionManager(private val username: String, private val password: String) {
     private lateinit var connection: AbstractXMPPConnection
+    private lateinit var roster: Roster
 
     fun connect(): Boolean {
         val config = XMPPTCPConnectionConfiguration.builder()
@@ -21,6 +24,9 @@ class XmppConnectionManager(private val username: String, private val password: 
         connection = XMPPTCPConnection(config)
         return try {
             connection.connect().login()
+            if (!this::roster.isInitialized) {
+                roster = Roster.getInstanceFor(connection)
+            }
             true
         } catch (e: Exception) {
             e.printStackTrace()
@@ -34,9 +40,8 @@ class XmppConnectionManager(private val username: String, private val password: 
 
     fun getRoster(): Roster? {
         return if (connection.isConnected) {
-            Roster.getInstanceFor(connection).apply {
-                reloadAndWait()
-            }
+            roster.reloadAndWait()
+            roster
         } else {
             null
         }
@@ -52,6 +57,11 @@ class XmppConnectionManager(private val username: String, private val password: 
 
     fun getUsername(): String {
         return username
+    }
+
+    fun getPresence(jidString: String): Presence {
+        val jid = JidCreate.bareFrom(jidString)
+        return roster.getPresence(jid)
     }
 
 }
