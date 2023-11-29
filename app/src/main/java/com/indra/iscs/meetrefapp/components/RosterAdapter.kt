@@ -13,12 +13,12 @@ import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.indra.iscs.meetrefapp.R
-import com.indra.iscs.meetrefapp.XmppConnectionManager
+import com.indra.iscs.meetrefapp.XmppClientManager
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.roster.RosterEntry
 
 class RosterAdapter(
-    private val xmppConnectionManager: XmppConnectionManager,
+    private val xmppClientManager: XmppClientManager,
     private val context: Context
 ) : RecyclerView.Adapter<RosterAdapter.RosterViewHolder>() {
 
@@ -40,7 +40,7 @@ class RosterAdapter(
         val rosterEntry = rosterList[position]
         holder.textViewJid.text = rosterEntry.jid.asUnescapedString()
         holder.textViewName.text = rosterEntry.name ?: context.getString(R.string.no_name_available)
-        val presence = xmppConnectionManager.getPresence(rosterEntry.jid.asUnescapedString())
+        val presence = xmppClientManager.getPresence(rosterEntry.jid.asUnescapedString())
         when {
             presence.isAvailable && presence.mode == Presence.Mode.available -> holder.presenceIndicator.setBackgroundResource(
                 R.drawable.presence_online
@@ -66,7 +66,7 @@ class RosterAdapter(
         popup.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_create_group -> {
-                    showCreateGroupDialog()
+                    showCreateGroupDialog(position)
                     true
                 }
                 else -> false
@@ -74,12 +74,12 @@ class RosterAdapter(
         }
         popup.show()
     }
-    private fun showCreateGroupDialog() {
+    private fun showCreateGroupDialog(position: Int) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_create_group, null)
         val editTextGroupName = dialogView.findViewById<EditText>(R.id.editTextGroupName)
 
         AlertDialog.Builder(context)
-            .setTitle("Create Group")
+            .setTitle(context.getString(R.string.create_group))
             .setView(dialogView)
             .setPositiveButton("Create") { dialog, _ ->
                 val groupName = editTextGroupName.text.toString().trim()

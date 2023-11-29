@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textViewJid: TextView
     private lateinit var textViewUsername: TextView
 
-    private val xmppConnectionManager = XmppConnectionManager("jose2", "1234")
+    private val xmppClientManager = XmppClientManager("jose2", "1234")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     private fun initViews() {
         val recyclerView: RecyclerView = findViewById(R.id.recyclerview_roster)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        rosterAdapter = RosterAdapter(xmppConnectionManager, this)
+        rosterAdapter = RosterAdapter(xmppClientManager, this)
         recyclerView.adapter = rosterAdapter
         imageViewProfile = findViewById(R.id.imageView_profile)
         textViewJid = findViewById(R.id.textView_jid)
@@ -46,10 +46,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun connectAndGetRoster() {
-        if (xmppConnectionManager.connect()) {
-            val roster = xmppConnectionManager.getRoster()
-            val jid = xmppConnectionManager.getUserJid()
-            val username = xmppConnectionManager.getUsername()
+        if (xmppClientManager.connect()) {
+            val roster = xmppClientManager.getRoster()
+            val jid = xmppClientManager.getUserJid()
+            val username = xmppClientManager.getUsername()
 
             withContext(Dispatchers.Main) {
                 textViewJid.text = jid
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        xmppConnectionManager.disconnect()
+        xmppClientManager.disconnect()
         activityScope.cancel()
     }
 }
