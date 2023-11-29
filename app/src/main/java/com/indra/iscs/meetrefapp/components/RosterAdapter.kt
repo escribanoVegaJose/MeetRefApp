@@ -1,12 +1,15 @@
 package com.indra.iscs.meetrefapp.components
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.indra.iscs.meetrefapp.R
@@ -63,6 +66,7 @@ class RosterAdapter(
         popup.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_create_group -> {
+                    showCreateGroupDialog()
                     true
                 }
                 else -> false
@@ -70,7 +74,27 @@ class RosterAdapter(
         }
         popup.show()
     }
+    private fun showCreateGroupDialog() {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_create_group, null)
+        val editTextGroupName = dialogView.findViewById<EditText>(R.id.editTextGroupName)
 
+        AlertDialog.Builder(context)
+            .setTitle("Create Group")
+            .setView(dialogView)
+            .setPositiveButton("Create") { dialog, _ ->
+                val groupName = editTextGroupName.text.toString().trim()
+                if (groupName.isNotEmpty()) {
+//                    xmppConnectionManager.createSharedGroup(groupName)
+                } else {
+                    Toast.makeText(context, "Group name cannot be empty", Toast.LENGTH_SHORT).show()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
+            .show()
+    }
     override fun getItemCount(): Int = rosterList.size
 
     @SuppressLint("NotifyDataSetChanged")
