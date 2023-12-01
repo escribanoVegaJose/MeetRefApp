@@ -70,13 +70,13 @@ class XmppClientManager(private val username: String, private val password: Stri
 
         try {
             // Convert String JID to BareJid
-            val userSelectedJid: BareJid = JidCreate.bareFrom(userSelectedJid)
+            val userSelectedBaredJid: BareJid = JidCreate.bareFrom(userSelectedJid)
 
             // Assuming group creation is done and 'groupName' represents the created group
             val groupEntry = roster.createGroup(groupId)
 
             // Add user to the group
-            val userEntry = roster.getEntry(userSelectedJid)
+            val userEntry = roster.getEntry(userSelectedBaredJid)
             userEntry?.let {
                 groupEntry.addEntry(it)
             }

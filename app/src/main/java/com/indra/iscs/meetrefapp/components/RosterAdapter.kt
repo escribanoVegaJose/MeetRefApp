@@ -16,6 +16,7 @@ import com.indra.iscs.meetrefapp.R
 import com.indra.iscs.meetrefapp.XmppClientManager
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.roster.RosterEntry
+import java.util.UUID
 
 class RosterAdapter(
     private val xmppClientManager: XmppClientManager,
@@ -84,23 +85,26 @@ class RosterAdapter(
         AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.create_group))
             .setView(dialogView)
-            .setPositiveButton("Create") { dialog, _ ->
+            .setPositiveButton(context.getString(R.string.create)) { dialog, _ ->
                 val groupName = editTextGroupName.text.toString().trim()
                 if (groupName.isNotEmpty()) {
                     val selectedEntry = rosterList[position]
                     val userSelectedJid = selectedEntry.jid.asUnescapedString()
-                    val currentUserJid = xmppClientManager.getUserJid()
-
+//                    val currentUserJid = xmppClientManager.getUserJid()
+                    val uniqueId = UUID.randomUUID().toString()
                     val groupId =
-                        "${currentUserJid}/${groupName}"
+                        "${groupName}/${uniqueId}"
                     userSelectedJid
                         ?.let { xmppClientManager.createGroupAndAddUser(groupId, it) }
                 } else {
-                    Toast.makeText(context, "Group name cannot be empty", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.group_name_cannot_be_empty), Toast.LENGTH_SHORT
+                    ).show()
                 }
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
                 dialog.cancel()
             }
             .show()
