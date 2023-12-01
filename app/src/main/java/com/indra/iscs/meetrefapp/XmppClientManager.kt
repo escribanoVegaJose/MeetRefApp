@@ -2,13 +2,11 @@ package com.indra.iscs.meetrefapp
 
 import org.jivesoftware.smack.AbstractXMPPConnection
 import org.jivesoftware.smack.ConnectionConfiguration
-import org.jivesoftware.smack.SmackException
-import org.jivesoftware.smack.XMPPException
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.roster.Roster
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
-import org.jivesoftware.smackx.pubsub.PubSubManager
+import org.jxmpp.jid.BareJid
 import org.jxmpp.jid.impl.JidCreate
 
 class XmppClientManager(private val username: String, private val password: String) {
@@ -67,23 +65,28 @@ class XmppClientManager(private val username: String, private val password: Stri
         return roster.getPresence(jid)
     }
 
-    fun createGroup(groupId: String) {
-        val pubSubManager = PubSubManager.getInstanceFor(connection)
+    fun createGroupAndAddUser(groupId: String, userSelectedJid: String) {
+        val roster = Roster.getInstanceFor(connection)
 
         try {
-            // Create the node with the specified groupId as the node identifier
-            val node = pubSubManager.createNode(groupId)
-            // Optional: Configure the node for shared group access
+            // Convert String JID to BareJid
+            val userSelectedJid: BareJid = JidCreate.bareFrom(userSelectedJid)
 
-            // Handle success (perhaps update UI or notify user)
-        } catch (e: XMPPException.XMPPErrorException) {
-            // Handle the error if the node creation failed
-        } catch (e: SmackException.NoResponseException) {
-            // Handle the error if there was no response
-        } catch (e: SmackException.NotConnectedException) {
-            // Handle the error if the client is not connected
-        } catch (e: InterruptedException) {
-            // Handle the error if the thread was interrupted
+            // Assuming group creation is done and 'groupName' represents the created group
+            val groupEntry = roster.createGroup(groupId)
+
+            // Add user to the group
+            val userEntry = roster.getEntry(userSelectedJid)
+            userEntry?.let {
+                groupEntry.addEntry(it)
+            }
+
+            // Push changes to the server
+            roster.reload()
+
+        } catch (e: Exception) {
+            // Handle exceptions related to JID creation or roster management
+            throw e
         }
     }
 }

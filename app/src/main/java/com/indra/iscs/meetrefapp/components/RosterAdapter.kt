@@ -60,6 +60,7 @@ class RosterAdapter(
             showPopupMenu(view, position)
         }
     }
+
     private fun showPopupMenu(view: View, position: Int) {
         val popup = PopupMenu(context, view)
         popup.menuInflater.inflate(R.menu.roster_item_menu, popup.menu)
@@ -69,11 +70,13 @@ class RosterAdapter(
                     showCreateGroupDialog(position)
                     true
                 }
+
                 else -> false
             }
         }
         popup.show()
     }
+
     private fun showCreateGroupDialog(position: Int) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_create_group, null)
         val editTextGroupName = dialogView.findViewById<EditText>(R.id.editTextGroupName)
@@ -84,7 +87,14 @@ class RosterAdapter(
             .setPositiveButton("Create") { dialog, _ ->
                 val groupName = editTextGroupName.text.toString().trim()
                 if (groupName.isNotEmpty()) {
-//                    xmppConnectionManager.createSharedGroup(groupName)
+                    val selectedEntry = rosterList[position]
+                    val userSelectedJid = selectedEntry.jid.asUnescapedString()
+                    val currentUserJid = xmppClientManager.getUserJid()
+
+                    val groupId =
+                        "${currentUserJid}/${groupName}"
+                    userSelectedJid
+                        ?.let { xmppClientManager.createGroupAndAddUser(groupId, it) }
                 } else {
                     Toast.makeText(context, "Group name cannot be empty", Toast.LENGTH_SHORT).show()
                 }
@@ -95,6 +105,7 @@ class RosterAdapter(
             }
             .show()
     }
+
     override fun getItemCount(): Int = rosterList.size
 
     @SuppressLint("NotifyDataSetChanged")
