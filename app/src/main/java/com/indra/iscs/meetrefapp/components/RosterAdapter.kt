@@ -13,7 +13,8 @@ import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.indra.iscs.meetrefapp.R
-import com.indra.iscs.meetrefapp.XmppClientManager
+import com.indra.iscs.meetrefapp.managers.XmppClientCallback
+import com.indra.iscs.meetrefapp.managers.XmppClientManager
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.roster.RosterEntry
 
@@ -60,6 +61,7 @@ class RosterAdapter(
             showPopupMenu(view, position)
         }
     }
+
     private fun showPopupMenu(view: View, position: Int) {
         val popup = PopupMenu(context, view)
         popup.menuInflater.inflate(R.menu.roster_item_menu, popup.menu)
@@ -69,11 +71,13 @@ class RosterAdapter(
                     showCreateGroupDialog(position)
                     true
                 }
+
                 else -> false
             }
         }
         popup.show()
     }
+
     private fun showCreateGroupDialog(position: Int) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_create_group, null)
         val editTextGroupName = dialogView.findViewById<EditText>(R.id.editTextGroupName)
@@ -84,17 +88,50 @@ class RosterAdapter(
             .setPositiveButton("Create") { dialog, _ ->
                 val groupName = editTextGroupName.text.toString().trim()
                 if (groupName.isNotEmpty()) {
-//                    xmppConnectionManager.createSharedGroup(groupName)
+                    val selectedEntry = rosterList[position]
+                    val userSelectedJid = selectedEntry.jid.asUnescapedString()
+                    val currentUserJid = xmppClientManager.getUserJid()
+
+                    val groupId =
+                        "${currentUserJid}_${groupName}@localhost" // Construct a unique groupId
+                    try {
+                        xmppClientManager.createCustomGroup(groupId, object : XmppClientCallback {
+                            override fun onSuccess() {
+                                xmppClientManager.addUserToGroup(
+                                    userSelectedJid,
+                                    groupId,
+                                    object : XmppClientCallback {
+                                        override fun onSuccess() {
+                                            Toast.makeText(
+                                                context,
+                                                "Group created and user added successfully",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+
+                                    })
+                                Toast.makeText(
+                                    context,
+                                    "Group created successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        })
+                    } catch (e: Exception) {
+                        // Handle exceptions as previously shown
+                    }
+
                 } else {
                     Toast.makeText(context, "Group name cannot be empty", Toast.LENGTH_SHORT).show()
                 }
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
                 dialog.cancel()
             }
             .show()
     }
+
     override fun getItemCount(): Int = rosterList.size
 
     @SuppressLint("NotifyDataSetChanged")

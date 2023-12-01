@@ -1,20 +1,19 @@
-package com.indra.iscs.meetrefapp
+package com.indra.iscs.meetrefapp.managers
 
+import com.indra.iscs.meetrefapp.stanzas.AddUserToGroupIQ
+import com.indra.iscs.meetrefapp.stanzas.CustomGroupIQ
 import org.jivesoftware.smack.AbstractXMPPConnection
 import org.jivesoftware.smack.ConnectionConfiguration
-import org.jivesoftware.smack.SmackException
-import org.jivesoftware.smack.XMPPException
+import org.jivesoftware.smack.packet.IQ
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.roster.Roster
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
-import org.jivesoftware.smackx.pubsub.PubSubManager
 import org.jxmpp.jid.impl.JidCreate
 
 class XmppClientManager(private val username: String, private val password: String) {
     private lateinit var connection: AbstractXMPPConnection
     private lateinit var roster: Roster
-
     fun connect(): Boolean {
         val config = XMPPTCPConnectionConfiguration.builder()
             .setUsernameAndPassword(username, password)
@@ -67,23 +66,30 @@ class XmppClientManager(private val username: String, private val password: Stri
         return roster.getPresence(jid)
     }
 
-    fun createGroup(groupId: String) {
-        val pubSubManager = PubSubManager.getInstanceFor(connection)
-
+    fun createCustomGroup(
+        groupId: String,
+        callback: XmppClientCallback
+    ) {
+        val iq = CustomGroupIQ(groupId)
+        iq.type = IQ.Type.set
+        iq.to = JidCreate.from("group.service.localhost.com")
         try {
-            // Create the node with the specified groupId as the node identifier
-            val node = pubSubManager.createNode(groupId)
-            // Optional: Configure the node for shared group access
-
-            // Handle success (perhaps update UI or notify user)
-        } catch (e: XMPPException.XMPPErrorException) {
-            // Handle the error if the node creation failed
-        } catch (e: SmackException.NoResponseException) {
-            // Handle the error if there was no response
-        } catch (e: SmackException.NotConnectedException) {
-            // Handle the error if the client is not connected
-        } catch (e: InterruptedException) {
-            // Handle the error if the thread was interrupted
+            connection.sendStanza(iq)
+            callback.onSuccess()
+        } catch (e: Exception) {
+            throw e
         }
     }
+
+    fun addUserToGroup(userJid: String, groupId: String, callback: XmppClientCallback) {
+        val iq = AddUserToGroupIQ(userJid, groupId)
+        iq.type = IQ.Type.set
+        try {
+            connection.sendStanza(iq)
+            callback.onSuccess()
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
 }
