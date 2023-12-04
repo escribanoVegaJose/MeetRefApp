@@ -95,7 +95,7 @@ class RosterAdapter(
                     val groupId =
                         "${groupName}/${uniqueId}"
                     userSelectedJid
-                        ?.let { xmppClientManager.createGroupAndAddUser(groupId, it) }
+                        ?.let { xmppClientManager.createGroupAndAddUser(groupName,groupId, it) }
                 } else {
                     Toast.makeText(
                         context,

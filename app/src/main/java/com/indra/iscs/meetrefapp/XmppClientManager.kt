@@ -4,14 +4,18 @@ import org.jivesoftware.smack.AbstractXMPPConnection
 import org.jivesoftware.smack.ConnectionConfiguration
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.roster.Roster
+import org.jivesoftware.smack.roster.RosterEntry
+import org.jivesoftware.smack.roster.RosterListener
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
 import org.jxmpp.jid.BareJid
+import org.jxmpp.jid.Jid
 import org.jxmpp.jid.impl.JidCreate
 
 class XmppClientManager(private val username: String, private val password: String) {
     private lateinit var connection: AbstractXMPPConnection
     private lateinit var roster: Roster
+    var rosterUpdateListener: ((List<RosterEntry>) -> Unit)? = null
 
     fun connect(): Boolean {
         val config = XMPPTCPConnectionConfiguration.builder()
@@ -27,6 +31,7 @@ class XmppClientManager(private val username: String, private val password: Stri
             connection.connect().login()
             if (!this::roster.isInitialized) {
                 roster = Roster.getInstanceFor(connection)
+                initializeRoster()
             }
             true
         } catch (e: Exception) {
@@ -39,6 +44,33 @@ class XmppClientManager(private val username: String, private val password: Stri
         connection.disconnect()
     }
 
+    fun notifyRosterUpdates() {
+        if (connection.isConnected) {
+            roster.reloadAndWait()
+            val rosterEntries = roster.entries.toList()
+            rosterUpdateListener?.invoke(rosterEntries)
+        }
+    }
+    private fun initializeRoster() {
+        roster = Roster.getInstanceFor(connection)
+        roster.addRosterListener(object : RosterListener {
+            override fun entriesAdded(addresses: MutableCollection<Jid>?) {
+                notifyRosterUpdates()
+            }
+
+            override fun entriesUpdated(addresses: MutableCollection<Jid>?) {
+                notifyRosterUpdates()
+            }
+
+            override fun entriesDeleted(addresses: MutableCollection<Jid>?) {
+                notifyRosterUpdates()
+            }
+
+            override fun presenceChanged(presence: Presence?) {
+                notifyRosterUpdates()
+            }
+        })
+    }
     fun getRoster(): Roster? {
         return if (connection.isConnected) {
             roster.reloadAndWait()
@@ -65,7 +97,7 @@ class XmppClientManager(private val username: String, private val password: Stri
         return roster.getPresence(jid)
     }
 
-    fun createGroupAndAddUser(groupId: String, userSelectedJid: String) {
+    fun createGroupAndAddUser(groupName: String, groupId: String, userSelectedJid: String) {
         val roster = Roster.getInstanceFor(connection)
 
         try {
@@ -85,7 +117,6 @@ class XmppClientManager(private val username: String, private val password: Stri
             roster.reload()
 
         } catch (e: Exception) {
-            // Handle exceptions related to JID creation or roster management
             throw e
         }
     }

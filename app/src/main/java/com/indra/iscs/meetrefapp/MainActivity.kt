@@ -29,6 +29,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initViews()
+        xmppClientManager.rosterUpdateListener = { updatedRoster ->
+            runOnUiThread {
+                rosterAdapter.updateRoster(updatedRoster)
+                textViewNoContacts.visibility = if (updatedRoster.isEmpty()) View.VISIBLE else View.GONE
+            }
+        }
         activityScope.launch {
             connectAndGetRoster()
         }
