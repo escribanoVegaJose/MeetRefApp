@@ -1,4 +1,4 @@
-package com.indra.iscs.meetrefapp.components
+package com.indra.iscs.meetrefapp.components.adapters
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -95,7 +95,7 @@ class RosterAdapter(
                     val groupId =
                         "${groupName}/${uniqueId}"
                     userSelectedJid
-                        ?.let { xmppClientManager.createGroupAndAddUser(groupName,groupId, it) }
+                        ?.let { xmppClientManager.createGroupAndAddUser(groupId, it) }
                 } else {
                     Toast.makeText(
                         context,

@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_contacts"
+        android:title="@string/contacts"
+        android:icon="@drawable/ic_contacts" />
+    <item
+        android:id="@+id/nav_pending_requests"
+        android:title="Pending Requests"
+        android:icon="@drawable/ic_pending_requests" />
+</menu>
