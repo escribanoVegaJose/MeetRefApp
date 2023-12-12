@@ -13,9 +13,6 @@ class PendingRequestsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Infla el layout para este fragmento
         return inflater.inflate(R.layout.fragment_pending_requests, container, false)
     }
-
-    // Aquí puedes agregar más lógica para manejar las peticiones pendientes
 }

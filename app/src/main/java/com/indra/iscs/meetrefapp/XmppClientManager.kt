@@ -91,8 +91,10 @@ class XmppClientManager() {
 
     fun addContact(jid: String, name: String) {
         val bareJid: BareJid = JidCreate.bareFrom(jid)
-        roster.createEntry(bareJid, name, null)
+        // Use the new method here
+        roster.createItemAndRequestSubscription(bareJid, name, null)
     }
+
 
     fun removeContact(jid: String) {
         val bareJid: BareJid = JidCreate.bareFrom(jid)

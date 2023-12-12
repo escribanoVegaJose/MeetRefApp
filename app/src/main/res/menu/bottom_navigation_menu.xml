@@ -5,6 +5,10 @@
         android:icon="@drawable/ic_contacts" />
     <item
         android:id="@+id/nav_pending_requests"
-        android:title="Pending Requests"
+        android:title="@string/pending_requests"
         android:icon="@drawable/ic_pending_requests" />
+    <item
+        android:id="@+id/nav_profile"
+        android:title="@string/profile"
+        android:icon="@drawable/ic_profile" />
 </menu>

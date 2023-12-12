@@ -34,6 +34,7 @@ class ContactsFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerview_roster)
         textViewNoContacts = view.findViewById(R.id.textView_no_contacts)
         progressBar = view.findViewById(R.id.progressBar_contacts)
+        progressBar.visibility = View.VISIBLE
         recyclerView.layoutManager = LinearLayoutManager(context)
         rosterAdapter = RosterAdapter(XmppClientManager.getInstance(), requireContext())
         recyclerView.adapter = rosterAdapter
@@ -48,6 +49,7 @@ class ContactsFragment : Fragment() {
         XmppClientManager.getInstance().rosterUpdateListener = { updatedRoster ->
             activity?.runOnUiThread {
                 updateContactList(updatedRoster)
+                progressBar.visibility = View.GONE
             }
         }
         // Cargar los datos actuales del roster
@@ -59,7 +61,6 @@ class ContactsFragment : Fragment() {
     }
 
     private fun updateContactList(entries: List<RosterEntry>?) {
-        progressBar.visibility = View.GONE
 
         if (entries.isNullOrEmpty()) {
             textViewNoContacts.visibility = View.VISIBLE

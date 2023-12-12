@@ -79,9 +79,9 @@ class RosterAdapter(
     }
 
     private fun showCreateGroupDialog(position: Int) {
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_create_group, null)
-        val editTextGroupName = dialogView.findViewById<EditText>(R.id.editTextGroupName)
-
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.basic_dialog_add, null)
+        val editTextGroupName = dialogView.findViewById<EditText>(R.id.editTextName)
+        editTextGroupName.hint = context.getString(R.string.enter_group_name)
         AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.create_group))
             .setView(dialogView)

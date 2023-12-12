@@ -2,25 +2,22 @@ package com.indra.iscs.meetrefapp
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
 import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.indra.iscs.meetrefapp.components.fragments.ContactsFragment
 import com.indra.iscs.meetrefapp.components.fragments.PendingRequestsFragment
+import com.indra.iscs.meetrefapp.components.fragments.ProfileFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
     private val xmppClientManager = XmppClientManager.getInstance()
     private val activityScope = CoroutineScope(Dispatchers.Main)
-    private lateinit var imageViewProfile: ImageView
-    private lateinit var textViewJid: TextView
-    private lateinit var textViewUsername: TextView
+
     private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,19 +29,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        imageViewProfile = findViewById(R.id.imageView_profile)
         progressBar = findViewById(R.id.progressBar_main)
-        progressBar.visibility = View.VISIBLE
-        textViewJid = findViewById(R.id.textView_jid)
-        textViewUsername = findViewById(R.id.textView_username)
     }
 
     private fun initBottomNavigation() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_contacts -> showContactsFragment()
-                R.id.nav_pending_requests -> showPendingRequestsFragment()
+                R.id.nav_contacts -> showFragment(ContactsFragment())
+                R.id.nav_pending_requests -> showFragment(PendingRequestsFragment())
+                R.id.nav_profile -> showFragment(ProfileFragment())
             }
             true
         }
@@ -53,32 +47,15 @@ class MainActivity : AppCompatActivity() {
     private fun connectToServer() {
         activityScope.launch {
             if (xmppClientManager.connect("jose2", "1234")) {
-                val jid = xmppClientManager.getUserJid()
-                val username = xmppClientManager.getUsername()
-
-                withContext(Dispatchers.Main) {
-                    progressBar.visibility= View.GONE
-                    textViewJid.text = jid
-                    textViewUsername.text = username
-                    showContactsFragment()
-                }
+                showFragment(ContactsFragment())
             } else {
                 // Connection failed
-                runOnUiThread {
-                    progressBar.visibility = View.GONE
-                }
             }
         }
     }
 
-    private fun showContactsFragment() {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, ContactsFragment())
-            .commit()
-    }
-
-    private fun showPendingRequestsFragment() {
-        val fragment = PendingRequestsFragment()
+    private fun showFragment(fragment: Fragment) {
+        progressBar.visibility = View.GONE
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()
