@@ -33,7 +33,4 @@ class ProfileFragment : Fragment() {
         textViewUsername.text = XmppClientManager.getInstance().getUsername()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
 }

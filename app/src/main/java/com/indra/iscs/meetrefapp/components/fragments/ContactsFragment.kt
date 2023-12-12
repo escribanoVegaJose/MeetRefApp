@@ -34,7 +34,6 @@ class ContactsFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerview_roster)
         textViewNoContacts = view.findViewById(R.id.textView_no_contacts)
         progressBar = view.findViewById(R.id.progressBar_contacts)
-        progressBar.visibility = View.VISIBLE
         recyclerView.layoutManager = LinearLayoutManager(context)
         rosterAdapter = RosterAdapter(XmppClientManager.getInstance(), requireContext())
         recyclerView.adapter = rosterAdapter
