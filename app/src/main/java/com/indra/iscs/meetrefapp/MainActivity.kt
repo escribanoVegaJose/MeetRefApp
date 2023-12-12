@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initBottomNavigation() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+        bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_contacts -> showContactsFragment()
                 R.id.nav_pending_requests -> showPendingRequestsFragment()
