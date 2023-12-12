@@ -1,7 +1,9 @@
 package com.indra.iscs.meetrefapp
 
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -11,7 +13,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jivesoftware.smack.roster.Roster
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,18 +21,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var imageViewProfile: ImageView
     private lateinit var textViewJid: TextView
     private lateinit var textViewUsername: TextView
-    private lateinit var roster: Roster
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        connectToServer()
         initBottomNavigation()
         initViews()
+        connectToServer()
     }
 
     private fun initViews() {
         imageViewProfile = findViewById(R.id.imageView_profile)
+        progressBar = findViewById(R.id.progressBar_main)
+        progressBar.visibility = View.VISIBLE
         textViewJid = findViewById(R.id.textView_jid)
         textViewUsername = findViewById(R.id.textView_username)
     }
@@ -54,13 +57,16 @@ class MainActivity : AppCompatActivity() {
                 val username = xmppClientManager.getUsername()
 
                 withContext(Dispatchers.Main) {
-                    roster = xmppClientManager.getRoster()
+                    progressBar.visibility= View.GONE
                     textViewJid.text = jid
                     textViewUsername.text = username
                     showContactsFragment()
                 }
             } else {
-                // Manejar la falla de conexión
+                // Connection failed
+                runOnUiThread {
+                    progressBar.visibility = View.GONE
+                }
             }
         }
     }

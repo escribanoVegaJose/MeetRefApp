@@ -106,8 +106,7 @@ class RosterAdapter(
             }
             .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
                 dialog.cancel()
-            }
-            .show()
+            }.show()
     }
 
     override fun getItemCount(): Int = rosterList.size

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,18 +19,24 @@ class ContactsFragment : Fragment() {
     private lateinit var rosterAdapter: RosterAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var textViewNoContacts: TextView
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_contacts, container, false)
+        initViews(view)
+        return view
+    }
+
+    private fun initViews(view: View) {
         recyclerView = view.findViewById(R.id.recyclerview_roster)
         textViewNoContacts = view.findViewById(R.id.textView_no_contacts)
+        progressBar = view.findViewById(R.id.progressBar_contacts)
         recyclerView.layoutManager = LinearLayoutManager(context)
         rosterAdapter = RosterAdapter(XmppClientManager.getInstance(), requireContext())
         recyclerView.adapter = rosterAdapter
-        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -39,15 +46,21 @@ class ContactsFragment : Fragment() {
 
     private fun setupRosterListener() {
         XmppClientManager.getInstance().rosterUpdateListener = { updatedRoster ->
-            updateContactList(updatedRoster)  // Pasar directamente la lista de RosterEntry
+            activity?.runOnUiThread {
+                updateContactList(updatedRoster)
+            }
         }
-
         // Cargar los datos actuales del roster
-        val currentRoster = XmppClientManager.getInstance().getRoster().entries?.toList()
-        updateContactList(currentRoster)
+        updateContactList(getCurrentUser())
+    }
+
+    private fun getCurrentUser(): List<RosterEntry>? {
+        return XmppClientManager.getInstance().getRoster().entries?.toList()
     }
 
     private fun updateContactList(entries: List<RosterEntry>?) {
+        progressBar.visibility = View.GONE
+
         if (entries.isNullOrEmpty()) {
             textViewNoContacts.visibility = View.VISIBLE
         } else {
@@ -58,5 +71,6 @@ class ContactsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        progressBar.visibility = View.GONE
     }
 }
