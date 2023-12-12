@@ -1,5 +1,6 @@
 package com.indra.iscs.meetrefapp
 
+import com.indra.iscs.meetrefapp.components.utils.Constants
 import org.jivesoftware.smack.AbstractXMPPConnection
 import org.jivesoftware.smack.ConnectionConfiguration
 import org.jivesoftware.smack.packet.Presence
@@ -7,6 +8,7 @@ import org.jivesoftware.smack.packet.StanzaBuilder
 import org.jivesoftware.smack.roster.Roster
 import org.jivesoftware.smack.roster.RosterEntry
 import org.jivesoftware.smack.roster.RosterListener
+import org.jivesoftware.smack.roster.packet.RosterPacket
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
 import org.jxmpp.jid.BareJid
@@ -31,12 +33,13 @@ class XmppClientManager() {
             }
         }
     }
+
     fun connect(username: String, pwd: String): Boolean {
         user = username
         password = pwd
         val config = XMPPTCPConnectionConfiguration.builder()
             .setUsernameAndPassword(user, password)
-            .setXmppDomain("localhost")
+            .setXmppDomain(Constants.DOMAIN)
             .setHost("192.168.56.245")
             .setPort(5222)
             .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
@@ -67,7 +70,16 @@ class XmppClientManager() {
             rosterUpdateListener?.invoke(rosterEntries)
         }
     }
-
+    fun getPendingRequests(): List<RosterEntry> {
+        return if (this::roster.isInitialized) {
+            roster.entries.filter {
+                // Assuming that pending requests are those with subscription 'none' or 'from'
+                it.type == RosterPacket.ItemType.none || it.type == RosterPacket.ItemType.from
+            }
+        } else {
+            emptyList()
+        }
+    }
     fun getRoster(): Roster {
         return roster
     }
@@ -95,12 +107,24 @@ class XmppClientManager() {
         roster.createItemAndRequestSubscription(bareJid, name, null)
     }
 
-
     fun removeContact(jid: String) {
         val bareJid: BareJid = JidCreate.bareFrom(jid)
         val entry = roster.getEntry(bareJid)
         entry?.let {
             roster.removeEntry(it)
+        }
+    }
+
+    fun requestSubscription(userJid: String) {
+        try {
+            val jid = JidCreate.bareFrom(userJid)
+            val presence = StanzaBuilder.buildPresence()
+                .ofType(Presence.Type.subscribe)
+                .to(jid)
+                .build()
+            connection.sendStanza(presence)
+        } catch (e: Exception) {
+            throw e
         }
     }
 

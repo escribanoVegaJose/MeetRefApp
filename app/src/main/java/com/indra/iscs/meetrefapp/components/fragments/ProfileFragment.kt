@@ -32,5 +32,4 @@ class ProfileFragment : Fragment() {
         textViewJid.text = XmppClientManager.getInstance().getUserJid()
         textViewUsername.text = XmppClientManager.getInstance().getUsername()
     }
-
 }

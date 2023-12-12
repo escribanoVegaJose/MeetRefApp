@@ -9,14 +9,18 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.indra.iscs.meetrefapp.R
 import com.indra.iscs.meetrefapp.XmppClientManager
+import com.indra.iscs.meetrefapp.components.adapters.PendingRequestsAdapter
 import com.indra.iscs.meetrefapp.components.utils.Constants
 
 class PendingRequestsFragment : Fragment() {
     private lateinit var addUserButton: FloatingActionButton
-
+    private lateinit var pendingRequestsRecyclerView: RecyclerView
+    private lateinit var pendingRequestsAdapter: PendingRequestsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,10 +28,16 @@ class PendingRequestsFragment : Fragment() {
     ): View? {
         val view =  inflater.inflate(R.layout.fragment_pending_requests, container, false)
         initViews(view)
+        loadPendingRequests()
         return view
     }
     private fun initViews(view: View)
     {
+        pendingRequestsRecyclerView = view.findViewById(R.id.recyclerview_pending_requests)
+        pendingRequestsAdapter = PendingRequestsAdapter(listOf()) // Initially empty list
+        pendingRequestsRecyclerView.layoutManager = LinearLayoutManager(context)
+        pendingRequestsRecyclerView.adapter = pendingRequestsAdapter
+
         addUserButton = view.findViewById(R.id.fab_add_contact)
         addUserButton.setOnClickListener {
             createDialog(requireContext())
@@ -58,4 +68,9 @@ class PendingRequestsFragment : Fragment() {
                 dialog.cancel()
             }.show()
     }
+    private fun loadPendingRequests() {
+        val pendingRequests = XmppClientManager.getInstance().getPendingRequests() // Implement this method
+        pendingRequestsAdapter.updateRequests(pendingRequests)
+    }
+
 }
