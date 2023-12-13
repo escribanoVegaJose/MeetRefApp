@@ -125,18 +125,22 @@ class XmppClientManager() {
     }
 
     fun acceptSubscription(jid: String) {
-        val bareJid: BareJid = JidCreate.bareFrom(jid)
-        val presence = StanzaBuilder.buildPresence()
-            .ofType(Presence.Type.subscribed)
-            .to(JidCreate.bareFrom(bareJid))
-            .build()
-        connection.sendStanza(presence)
+        try {
+            val bareJid: BareJid = JidCreate.bareFrom(jid)
+            val presence = StanzaBuilder.buildPresence()
+                .ofType(Presence.Type.subscribed)
+                .to(JidCreate.bareFrom(bareJid))
+                .build()
+            connection.sendStanza(presence)
+        } catch (e: Exception) {
+            throw e
+        }
     }
 
     fun rejectSubscription(jid: String) {
         val bareJid: BareJid = JidCreate.bareFrom(jid)
         val presence = StanzaBuilder.buildPresence()
-            .ofType(Presence.Type.unsubscribed)
+            .ofType(Presence.Type.unsubscribe)
             .to(JidCreate.bareFrom(bareJid))
             .build()
         connection.sendStanza(presence)

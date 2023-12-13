@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.indra.iscs.meetrefapp.R
@@ -40,13 +41,27 @@ class PendingRequestsAdapter(private var pendingRequests: List<RosterEntry>) :
                 context.getString(
                     R.string.tittle_friendly_request,
                     rosterEntry.jid.asUnescapedString()
-                ))
+                )
+            )
             .setPositiveButton(context.getString(R.string.accept)) { dialog, _ ->
-                XmppClientManager.getInstance().acceptSubscription(rosterEntry.jid.asUnescapedString())
+                try {
+                    XmppClientManager.getInstance()
+                        .acceptSubscription(rosterEntry.jid.asUnescapedString())
+
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.error_adding_user), Toast.LENGTH_SHORT
+                    ).show()
+                }
                 dialog.dismiss()
             }
             .setNegativeButton(context.getString(R.string.reject)) { dialog, _ ->
-                XmppClientManager.getInstance().rejectSubscription(rosterEntry.jid.asUnescapedString())
+                XmppClientManager.getInstance()
+                    .rejectSubscription(rosterEntry.jid.asUnescapedString())
+
+                XmppClientManager.getInstance()
+                    .removeContact(rosterEntry.jid.asUnescapedString())
                 dialog.dismiss()
             }
             .show()

@@ -13,6 +13,7 @@
     <string name="enter_group_name">Enter group name</string>
     <string name="enter_user_name">Enter user name</string>
     <string name="group_name_cannot_be_empty">Group name cannot be empty</string>
+    <string name="error_adding_user">Error adding user to list contact</string>
     <string name="cancel">Cancel</string>
     <string name="create">Create</string>
     <string name="contacts">Contacts</string>

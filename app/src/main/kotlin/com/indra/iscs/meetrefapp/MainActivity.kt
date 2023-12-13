@@ -41,8 +41,10 @@ class MainActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar_main)
     }
 
+
     private fun initBottomNavigation() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_contacts -> showFragment(ContactsFragment())

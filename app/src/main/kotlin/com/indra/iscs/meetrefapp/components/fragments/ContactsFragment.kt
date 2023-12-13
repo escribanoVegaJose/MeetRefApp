@@ -49,7 +49,6 @@ class ContactsFragment : Fragment() {
         rosterViewModel.loadRosterEntries()
     }
 
-
     private fun updateContactList(entries: List<RosterEntry>?) {
 
         if (entries.isNullOrEmpty()) {
