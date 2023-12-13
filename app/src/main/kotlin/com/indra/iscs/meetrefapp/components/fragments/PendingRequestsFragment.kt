@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.get
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -16,23 +18,25 @@ import com.indra.iscs.meetrefapp.R
 import com.indra.iscs.meetrefapp.managers.XmppClientManager
 import com.indra.iscs.meetrefapp.components.adapters.PendingRequestsAdapter
 import com.indra.iscs.meetrefapp.utils.Constants
+import com.indra.iscs.meetrefapp.viewmodels.RosterViewModel
 
 class PendingRequestsFragment : Fragment() {
     private lateinit var addUserButton: FloatingActionButton
     private lateinit var pendingRequestsRecyclerView: RecyclerView
     private lateinit var pendingRequestsAdapter: PendingRequestsAdapter
+    private lateinit var rosterViewModel: RosterViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view =  inflater.inflate(R.layout.fragment_pending_requests, container, false)
+        val view = inflater.inflate(R.layout.fragment_pending_requests, container, false)
         initViews(view)
         loadPendingRequests()
         return view
     }
-    private fun initViews(view: View)
-    {
+
+    private fun initViews(view: View) {
         pendingRequestsRecyclerView = view.findViewById(R.id.recyclerview_pending_requests)
         pendingRequestsAdapter = PendingRequestsAdapter(listOf())
         pendingRequestsRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -42,9 +46,13 @@ class PendingRequestsFragment : Fragment() {
         addUserButton.setOnClickListener {
             createDialog(requireContext())
         }
+        rosterViewModel = ViewModelProvider(requireActivity()).get()
+        rosterViewModel.rosterEntries.observe(viewLifecycleOwner) {
+            loadPendingRequests()
+        }
     }
-    private fun createDialog(context: Context)
-    {
+
+    private fun createDialog(context: Context) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.basic_dialog_add, null)
         val editContactNameText = dialogView.findViewById<EditText>(R.id.editTextName)
         editContactNameText.hint = context.getString(R.string.enter_user_name)
@@ -55,7 +63,8 @@ class PendingRequestsFragment : Fragment() {
             .setPositiveButton(context.getString(R.string.add)) { dialog, _ ->
                 val contactName = editContactNameText.text.toString().trim()
                 if (contactName.isNotEmpty()) {
-                    XmppClientManager.getInstance().requestSubscription(contactName + Constants.JID_DOMAIN)
+                    XmppClientManager.getInstance()
+                        .requestSubscription(contactName + Constants.JID_DOMAIN)
                 } else {
                     Toast.makeText(
                         context,
@@ -68,6 +77,7 @@ class PendingRequestsFragment : Fragment() {
                 dialog.cancel()
             }.show()
     }
+
     private fun loadPendingRequests() {
         val pendingRequests = XmppClientManager.getInstance().getPendingRequests()
         pendingRequestsAdapter.updateRequests(pendingRequests)
