@@ -5,33 +5,31 @@
     android:layout_height="wrap_content"
     android:padding="16dp">
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/image_zone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="@+id/text_container"
         app:layout_constraintEnd_toStartOf="@+id/text_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/text_container">
 
+        <ImageView
+            android:id="@+id/imageView_profile"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:contentDescription="@string/content_description"
+            android:src="@mipmap/ic_launcher" />
+
         <View
             android:id="@+id/presence_indicator"
             android:layout_width="20dp"
             android:layout_height="20dp"
+            android:layout_gravity="bottom|end"
             android:background="@drawable/presence_offline" />
-
-        <ImageView
-            android:id="@+id/imageView_profile"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@string/content_description"
-            android:src="@mipmap/ic_launcher" />
-    </LinearLayout>
+    </FrameLayout>
 
 
     <ImageButton

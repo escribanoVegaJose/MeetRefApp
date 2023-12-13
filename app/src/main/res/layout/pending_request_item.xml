@@ -10,8 +10,8 @@
 
     <ImageView
         android:id="@+id/imageView_profile"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
         android:contentDescription="@string/content_description"
         android:src="@mipmap/ic_launcher" />
 
