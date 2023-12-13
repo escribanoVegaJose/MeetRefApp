@@ -20,7 +20,7 @@ class XmppClientManager() {
     private var password: String? = null
     private lateinit var connection: AbstractXMPPConnection
     private lateinit var roster: Roster
-    var rosterUpdateListener: ((List<RosterEntry>) -> Unit)? = null
+    var rosterUpdateListener: (() -> Unit)? = null
 
     companion object {
         @Volatile
@@ -64,10 +64,16 @@ class XmppClientManager() {
 
     fun notifyRosterUpdates() {
         if (connection.isConnected) {
-            roster.reloadAndWait()
-            val rosterEntries = roster.entries.toList()
-            rosterUpdateListener?.invoke(rosterEntries)
+            rosterUpdateListener?.invoke()
         }
+    }
+
+    fun getUpdatedRoster(): List<RosterEntry> {
+        if (connection.isConnected) {
+            roster.reloadAndWait()
+            return roster.entries.toList()
+        }
+        return listOf()
     }
 
     fun getPendingRequests(): List<RosterEntry> {
@@ -78,10 +84,6 @@ class XmppClientManager() {
         } else {
             emptyList()
         }
-    }
-
-    fun getRoster(): Roster {
-        return roster
     }
 
     fun getUserJid(): String? {

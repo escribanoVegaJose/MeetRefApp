@@ -5,11 +5,14 @@ import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.get
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.indra.iscs.meetrefapp.components.fragments.ContactsFragment
 import com.indra.iscs.meetrefapp.components.fragments.PendingRequestsFragment
 import com.indra.iscs.meetrefapp.components.fragments.ProfileFragment
 import com.indra.iscs.meetrefapp.managers.XmppClientManager
+import com.indra.iscs.meetrefapp.viewmodels.RosterViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     private val activityScope = CoroutineScope(Dispatchers.Main)
 
     private lateinit var progressBar: ProgressBar
+    private lateinit var rosterViewModel: RosterViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +31,10 @@ class MainActivity : AppCompatActivity() {
         initBottomNavigation()
         initViews()
         connectToServer()
+        rosterViewModel = ViewModelProvider(this).get()
+        xmppClientManager.rosterUpdateListener = {
+            rosterViewModel.loadRosterEntries()
+        }
     }
 
     private fun initViews() {
