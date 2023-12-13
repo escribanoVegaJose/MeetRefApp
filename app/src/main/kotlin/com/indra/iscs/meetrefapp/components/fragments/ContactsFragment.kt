@@ -49,7 +49,7 @@ class ContactsFragment : Fragment() {
     }
 
     private fun setupRosterListener() {
-        rosterViewModel = ViewModelProvider(this).get()
+        rosterViewModel = ViewModelProvider(requireActivity()).get()
         rosterViewModel.rosterEntries.observe(viewLifecycleOwner) { updatedRoster ->
             updateContactList(updatedRoster)
         }
