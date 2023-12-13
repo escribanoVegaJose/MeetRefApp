@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.indra.iscs.meetrefapp.R
-import com.indra.iscs.meetrefapp.XmppClientManager
+import com.indra.iscs.meetrefapp.managers.XmppClientManager
 
 class ProfileFragment : Fragment() {
 

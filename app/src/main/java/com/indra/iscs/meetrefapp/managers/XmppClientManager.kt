@@ -1,6 +1,6 @@
-package com.indra.iscs.meetrefapp
+package com.indra.iscs.meetrefapp.managers
 
-import com.indra.iscs.meetrefapp.components.utils.Constants
+import com.indra.iscs.meetrefapp.utils.Constants
 import org.jivesoftware.smack.AbstractXMPPConnection
 import org.jivesoftware.smack.ConnectionConfiguration
 import org.jivesoftware.smack.packet.Presence
@@ -8,7 +8,6 @@ import org.jivesoftware.smack.packet.StanzaBuilder
 import org.jivesoftware.smack.roster.Roster
 import org.jivesoftware.smack.roster.RosterEntry
 import org.jivesoftware.smack.roster.RosterListener
-import org.jivesoftware.smack.roster.packet.RosterPacket
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
 import org.jxmpp.jid.BareJid
@@ -70,16 +69,17 @@ class XmppClientManager() {
             rosterUpdateListener?.invoke(rosterEntries)
         }
     }
+
     fun getPendingRequests(): List<RosterEntry> {
         return if (this::roster.isInitialized) {
-            roster.entries.filter {
-                // Assuming that pending requests are those with subscription 'none' or 'from'
-                it.type == RosterPacket.ItemType.none || it.type == RosterPacket.ItemType.from
+            roster.unfiledEntries.filter {
+                it.isSubscriptionPending
             }
         } else {
             emptyList()
         }
     }
+
     fun getRoster(): Roster {
         return roster
     }
@@ -99,12 +99,6 @@ class XmppClientManager() {
     fun getPresence(jidString: String): Presence {
         val jid = JidCreate.bareFrom(jidString)
         return roster.getPresence(jid)
-    }
-
-    fun addContact(jid: String, name: String) {
-        val bareJid: BareJid = JidCreate.bareFrom(jid)
-        // Use the new method here
-        roster.createItemAndRequestSubscription(bareJid, name, null)
     }
 
     fun removeContact(jid: String) {
@@ -128,7 +122,8 @@ class XmppClientManager() {
         }
     }
 
-    fun acceptSubscription(bareJid: String) {
+    fun acceptSubscription(jid: String) {
+        val bareJid: BareJid = JidCreate.bareFrom(jid)
         val presence = StanzaBuilder.buildPresence()
             .ofType(Presence.Type.subscribed)
             .to(JidCreate.bareFrom(bareJid))
@@ -136,7 +131,8 @@ class XmppClientManager() {
         connection.sendStanza(presence)
     }
 
-    fun rejectSubscription(bareJid: String) {
+    fun rejectSubscription(jid: String) {
+        val bareJid: BareJid = JidCreate.bareFrom(jid)
         val presence = StanzaBuilder.buildPresence()
             .ofType(Presence.Type.unsubscribed)
             .to(JidCreate.bareFrom(bareJid))

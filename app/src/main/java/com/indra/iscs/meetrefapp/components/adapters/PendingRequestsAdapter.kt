@@ -1,11 +1,15 @@
 package com.indra.iscs.meetrefapp.components.adapters
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.indra.iscs.meetrefapp.R
+import com.indra.iscs.meetrefapp.managers.XmppClientManager
 import org.jivesoftware.smack.roster.RosterEntry
 
 class PendingRequestsAdapter(private var pendingRequests: List<RosterEntry>) :
@@ -24,10 +28,33 @@ class PendingRequestsAdapter(private var pendingRequests: List<RosterEntry>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val rosterEntry = pendingRequests[position]
         holder.textViewJid.text = rosterEntry.jid.asUnescapedString()
+        holder.itemView.setOnClickListener {
+            showFriendRequestDialog(holder.itemView.context, rosterEntry)
+        }
+    }
+
+    private fun showFriendRequestDialog(context: Context, rosterEntry: RosterEntry) {
+        AlertDialog.Builder(context)
+            .setTitle(context.getString(R.string.friend_request))
+            .setMessage(
+                context.getString(
+                    R.string.tittle_friendly_request,
+                    rosterEntry.jid.asUnescapedString()
+                ))
+            .setPositiveButton(context.getString(R.string.accept)) { dialog, _ ->
+                XmppClientManager.getInstance().acceptSubscription(rosterEntry.jid.asUnescapedString())
+                dialog.dismiss()
+            }
+            .setNegativeButton(context.getString(R.string.reject)) { dialog, _ ->
+                XmppClientManager.getInstance().rejectSubscription(rosterEntry.jid.asUnescapedString())
+                dialog.dismiss()
+            }
+            .show()
     }
 
     override fun getItemCount(): Int = pendingRequests.size
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateRequests(newRequests: List<RosterEntry>) {
         pendingRequests = newRequests
         notifyDataSetChanged()

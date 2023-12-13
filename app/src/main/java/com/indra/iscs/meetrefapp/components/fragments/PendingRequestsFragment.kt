@@ -13,9 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.indra.iscs.meetrefapp.R
-import com.indra.iscs.meetrefapp.XmppClientManager
+import com.indra.iscs.meetrefapp.managers.XmppClientManager
 import com.indra.iscs.meetrefapp.components.adapters.PendingRequestsAdapter
-import com.indra.iscs.meetrefapp.components.utils.Constants
+import com.indra.iscs.meetrefapp.utils.Constants
 
 class PendingRequestsFragment : Fragment() {
     private lateinit var addUserButton: FloatingActionButton
@@ -34,7 +34,7 @@ class PendingRequestsFragment : Fragment() {
     private fun initViews(view: View)
     {
         pendingRequestsRecyclerView = view.findViewById(R.id.recyclerview_pending_requests)
-        pendingRequestsAdapter = PendingRequestsAdapter(listOf()) // Initially empty list
+        pendingRequestsAdapter = PendingRequestsAdapter(listOf())
         pendingRequestsRecyclerView.layoutManager = LinearLayoutManager(context)
         pendingRequestsRecyclerView.adapter = pendingRequestsAdapter
 
@@ -69,7 +69,7 @@ class PendingRequestsFragment : Fragment() {
             }.show()
     }
     private fun loadPendingRequests() {
-        val pendingRequests = XmppClientManager.getInstance().getPendingRequests() // Implement this method
+        val pendingRequests = XmppClientManager.getInstance().getPendingRequests()
         pendingRequestsAdapter.updateRequests(pendingRequests)
     }
 

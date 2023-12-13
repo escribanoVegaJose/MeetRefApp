@@ -2,6 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    android:clickable="true"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:padding="16dp">
@@ -20,5 +22,4 @@
         android:layout_marginStart="8dp"
         android:text="@string/jid"
         android:textSize="18sp" />
-
 </LinearLayout>

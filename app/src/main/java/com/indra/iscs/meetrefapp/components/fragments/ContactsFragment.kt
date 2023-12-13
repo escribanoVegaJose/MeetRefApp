@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.indra.iscs.meetrefapp.R
-import com.indra.iscs.meetrefapp.XmppClientManager
+import com.indra.iscs.meetrefapp.managers.XmppClientManager
 import com.indra.iscs.meetrefapp.components.adapters.RosterAdapter
 import org.jivesoftware.smack.roster.RosterEntry
 
@@ -51,7 +51,6 @@ class ContactsFragment : Fragment() {
                 progressBar.visibility = View.GONE
             }
         }
-        // Cargar los datos actuales del roster
         updateContactList(getCurrentUser())
     }
 

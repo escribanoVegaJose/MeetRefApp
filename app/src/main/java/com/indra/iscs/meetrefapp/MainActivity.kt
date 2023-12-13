@@ -9,6 +9,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.indra.iscs.meetrefapp.components.fragments.ContactsFragment
 import com.indra.iscs.meetrefapp.components.fragments.PendingRequestsFragment
 import com.indra.iscs.meetrefapp.components.fragments.ProfileFragment
+import com.indra.iscs.meetrefapp.managers.XmppClientManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

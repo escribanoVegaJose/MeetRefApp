@@ -1,4 +1,4 @@
-package com.indra.iscs.meetrefapp.components.utils
+package com.indra.iscs.meetrefapp.utils
 
 class Constants {
     companion object{
