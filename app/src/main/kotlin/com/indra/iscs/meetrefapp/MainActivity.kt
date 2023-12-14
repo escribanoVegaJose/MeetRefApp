@@ -13,6 +13,7 @@ import com.indra.iscs.meetrefapp.components.fragments.PendingRequestsFragment
 import com.indra.iscs.meetrefapp.components.fragments.ProfileFragment
 import com.indra.iscs.meetrefapp.managers.XmppClientManager
 import com.indra.iscs.meetrefapp.viewmodels.RosterViewModel
+import com.indra.iscs.meetrefapp.viewmodels.SubscriptionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,6 +25,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var progressBar: ProgressBar
     private lateinit var rosterViewModel: RosterViewModel
+    private lateinit var subscriptionViewModel: SubscriptionViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +36,10 @@ class MainActivity : AppCompatActivity() {
         rosterViewModel = ViewModelProvider(this).get()
         xmppClientManager.rosterUpdateListener = {
             rosterViewModel.loadRosterEntries()
+        }
+        subscriptionViewModel = ViewModelProvider(this).get()
+        xmppClientManager.subscriptionUpdateListener={
+            subscriptionViewModel.updatePendingSubscriptions(it)
         }
     }
 

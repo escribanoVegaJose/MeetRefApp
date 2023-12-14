@@ -11,9 +11,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.indra.iscs.meetrefapp.R
 import com.indra.iscs.meetrefapp.managers.XmppClientManager
-import org.jivesoftware.smack.roster.RosterEntry
+import org.jivesoftware.smack.packet.Stanza
 
-class PendingRequestsAdapter(private var pendingRequests: List<RosterEntry>) :
+class PendingRequestsAdapter(private var pendingRequests: List<Stanza>) :
     RecyclerView.Adapter<PendingRequestsAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -27,27 +27,28 @@ class PendingRequestsAdapter(private var pendingRequests: List<RosterEntry>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val rosterEntry = pendingRequests[position]
-        holder.textViewJid.text = rosterEntry.jid.asUnescapedString()
+        val stanza = pendingRequests[position]
+        holder.textViewJid.text = stanza.from
         holder.itemView.setOnClickListener {
-            showFriendRequestDialog(holder.itemView.context, rosterEntry)
+            showFriendRequestDialog(holder.itemView.context, stanza)
         }
     }
 
-    private fun showFriendRequestDialog(context: Context, rosterEntry: RosterEntry) {
+    private fun showFriendRequestDialog(context: Context, stanza: Stanza) {
         AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.friend_request))
             .setMessage(
                 context.getString(
                     R.string.tittle_friendly_request,
-                    rosterEntry.jid.asUnescapedString()
+                    stanza.from
                 )
             )
             .setPositiveButton(context.getString(R.string.accept)) { dialog, _ ->
                 try {
-                    XmppClientManager.getInstance()
-                        .acceptSubscription(rosterEntry.jid.asUnescapedString())
-
+                    XmppClientManager.getInstance().getUserJid()?.let {
+                        XmppClientManager.getInstance()
+                            .acceptSubscription(stanza.from)
+                    }
                 } catch (e: Exception) {
                     Toast.makeText(
                         context,
@@ -58,10 +59,10 @@ class PendingRequestsAdapter(private var pendingRequests: List<RosterEntry>) :
             }
             .setNegativeButton(context.getString(R.string.reject)) { dialog, _ ->
                 XmppClientManager.getInstance()
-                    .rejectSubscription(rosterEntry.jid.asUnescapedString())
+                    .cancelSubscription(stanza.from)
 
                 XmppClientManager.getInstance()
-                    .removeContact(rosterEntry.jid.asUnescapedString())
+                    .removeContact(stanza.from)
                 dialog.dismiss()
             }
             .show()
@@ -70,7 +71,7 @@ class PendingRequestsAdapter(private var pendingRequests: List<RosterEntry>) :
     override fun getItemCount(): Int = pendingRequests.size
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateRequests(newRequests: List<RosterEntry>) {
+    fun updateRequests(newRequests: List<Stanza>) {
         pendingRequests = newRequests
         notifyDataSetChanged()
     }

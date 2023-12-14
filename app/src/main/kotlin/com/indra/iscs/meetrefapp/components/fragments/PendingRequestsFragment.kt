@@ -15,16 +15,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.indra.iscs.meetrefapp.R
-import com.indra.iscs.meetrefapp.managers.XmppClientManager
 import com.indra.iscs.meetrefapp.components.adapters.PendingRequestsAdapter
+import com.indra.iscs.meetrefapp.managers.XmppClientManager
 import com.indra.iscs.meetrefapp.utils.Constants
 import com.indra.iscs.meetrefapp.viewmodels.RosterViewModel
+import com.indra.iscs.meetrefapp.viewmodels.SubscriptionViewModel
+import org.jivesoftware.smack.packet.Stanza
 
 class PendingRequestsFragment : Fragment() {
     private lateinit var addUserButton: FloatingActionButton
     private lateinit var pendingRequestsRecyclerView: RecyclerView
     private lateinit var pendingRequestsAdapter: PendingRequestsAdapter
-    private lateinit var rosterViewModel: RosterViewModel
+    private lateinit var subscriptionViewModel: SubscriptionViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,7 +34,7 @@ class PendingRequestsFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_pending_requests, container, false)
         initViews(view)
-        loadPendingRequests()
+        loadPendingSubscriptionRequest(listOf())
         return view
     }
 
@@ -46,9 +48,10 @@ class PendingRequestsFragment : Fragment() {
         addUserButton.setOnClickListener {
             createDialog(requireContext())
         }
-        rosterViewModel = ViewModelProvider(requireActivity()).get()
-        rosterViewModel.rosterEntries.observe(viewLifecycleOwner) {
-            loadPendingRequests()
+
+        subscriptionViewModel = ViewModelProvider(requireActivity()).get()
+        subscriptionViewModel.pendingSubscriptions.observe(viewLifecycleOwner) {
+            loadPendingSubscriptionRequest(it)
         }
     }
 
@@ -78,8 +81,11 @@ class PendingRequestsFragment : Fragment() {
             }.show()
     }
 
-    private fun loadPendingRequests() {
-        val pendingRequests = XmppClientManager.getInstance().getPendingRequests()
+//    private fun loadPendingRequests() {
+//        val pendingRequests = XmppClientManager.getInstance().getPendingSubscriptionRequests()
+//        pendingRequestsAdapter.updateRequests(pendingRequests)
+//    }
+    private fun loadPendingSubscriptionRequest(pendingRequests:List<Stanza>) {
         pendingRequestsAdapter.updateRequests(pendingRequests)
     }
 
