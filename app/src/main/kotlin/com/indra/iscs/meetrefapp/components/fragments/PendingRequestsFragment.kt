@@ -1,5 +1,6 @@
 package com.indra.iscs.meetrefapp.components.fragments
 
+import com.indra.iscs.meetrefapp.managers.AppPreferencesManager
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
@@ -17,10 +18,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.indra.iscs.meetrefapp.R
 import com.indra.iscs.meetrefapp.components.adapters.PendingRequestsAdapter
 import com.indra.iscs.meetrefapp.managers.XmppClientManager
+import com.indra.iscs.meetrefapp.models.SimpleStanzaModel
 import com.indra.iscs.meetrefapp.utils.Constants
-import com.indra.iscs.meetrefapp.viewmodels.RosterViewModel
 import com.indra.iscs.meetrefapp.viewmodels.SubscriptionViewModel
-import org.jivesoftware.smack.packet.Stanza
 
 class PendingRequestsFragment : Fragment() {
     private lateinit var addUserButton: FloatingActionButton
@@ -34,7 +34,8 @@ class PendingRequestsFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_pending_requests, container, false)
         initViews(view)
-        loadPendingSubscriptionRequest(listOf())
+        val appPreferencesManager = context?.let { AppPreferencesManager.getInstance(it) }
+        appPreferencesManager?.let { loadPendingSubscriptionRequest(it.loadPendingSubscriptions()) }
         return view
     }
 
@@ -85,7 +86,7 @@ class PendingRequestsFragment : Fragment() {
 //        val pendingRequests = XmppClientManager.getInstance().getPendingSubscriptionRequests()
 //        pendingRequestsAdapter.updateRequests(pendingRequests)
 //    }
-    private fun loadPendingSubscriptionRequest(pendingRequests:List<Stanza>) {
+    private fun loadPendingSubscriptionRequest(pendingRequests:List<SimpleStanzaModel>) {
         pendingRequestsAdapter.updateRequests(pendingRequests)
     }
 

@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun connectToServer() {
         activityScope.launch {
-            if (xmppClientManager.connect("jose2", "1234")) {
+            if (xmppClientManager.connect("jose2", "1234", applicationContext)) {
                 showFragment(ContactsFragment())
             } else {
                 // Connection failed

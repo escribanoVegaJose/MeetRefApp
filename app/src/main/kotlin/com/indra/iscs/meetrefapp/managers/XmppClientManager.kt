@@ -1,5 +1,7 @@
 package com.indra.iscs.meetrefapp.managers
 
+import android.content.Context
+import com.indra.iscs.meetrefapp.models.SimpleStanzaModel
 import com.indra.iscs.meetrefapp.utils.Constants
 import org.jivesoftware.smack.AbstractXMPPConnection
 import org.jivesoftware.smack.ConnectionConfiguration
@@ -23,8 +25,8 @@ class XmppClientManager() {
     private lateinit var connection: AbstractXMPPConnection
     private lateinit var roster: Roster
     var rosterUpdateListener: (() -> Unit)? = null
-    var subscriptionUpdateListener: ((List<Stanza>) -> Unit)? = null
-    private val pendingRosterEntries = mutableListOf<Stanza>()
+    var subscriptionUpdateListener: ((List<SimpleStanzaModel>) -> Unit)? = null
+    private val pendingRosterEntries = mutableListOf<SimpleStanzaModel>()
 
 
     companion object {
@@ -38,7 +40,7 @@ class XmppClientManager() {
         }
     }
 
-    fun connect(username: String, pwd: String): Boolean {
+    fun connect(username: String, pwd: String, context: Context): Boolean {
         user = username
         password = pwd
         val config = XMPPTCPConnectionConfiguration.builder()
@@ -55,7 +57,7 @@ class XmppClientManager() {
             if (!this::roster.isInitialized) {
                 roster = Roster.getInstanceFor(connection)
                 roster.subscriptionMode = Roster.SubscriptionMode.manual
-                initializeRoster()
+                initializeRoster(context)
             }
             true
         } catch (e: Exception) {
@@ -109,7 +111,7 @@ class XmppClientManager() {
         return roster.getPresence(jid)
     }
 
-    fun removeContact(jid: Jid) {
+    fun removeContact(jid: String?) {
         val bareJid: BareJid = JidCreate.bareFrom(jid)
         val entry = roster.getEntry(bareJid)
         entry?.let {
@@ -130,7 +132,7 @@ class XmppClientManager() {
         }
     }
 
-    fun acceptSubscription(jidTo: Jid) {
+    fun acceptSubscription(jidTo: String?) {
         try {
             val bareJid: BareJid = JidCreate.bareFrom(jidTo)
             val presence = StanzaBuilder.buildPresence()
@@ -142,7 +144,8 @@ class XmppClientManager() {
             throw e
         }
     }
-    fun cancelSubscription(jid: Jid) {
+
+    fun cancelSubscription(jid: String?) {
         val bareJid: BareJid = JidCreate.bareFrom(jid)
         val presence = StanzaBuilder.buildPresence()
             .ofType(Presence.Type.unsubscribe)
@@ -150,6 +153,7 @@ class XmppClientManager() {
             .build()
         connection.sendStanza(presence)
     }
+
     fun rejectSubscription(jid: String) {
         val bareJid: BareJid = JidCreate.bareFrom(jid)
         val presence = StanzaBuilder.buildPresence()
@@ -181,7 +185,8 @@ class XmppClientManager() {
             throw e
         }
     }
-    private fun initializeRoster() {
+
+    private fun initializeRoster(context: Context) {
         roster = Roster.getInstanceFor(connection)
 
         roster.addRosterListener(object : RosterListener {
@@ -205,15 +210,25 @@ class XmppClientManager() {
         val presenceFilter = StanzaTypeFilter(Presence::class.java)
         connection.addAsyncStanzaListener({ stanza ->
             if (stanza is Presence && stanza.type == Presence.Type.subscribe) {
-                addPendingSubscriptionRequest(stanza)
+                addPendingSubscriptionRequest(context, stanza)
             }
         }, presenceFilter)
     }
-    private fun addPendingSubscriptionRequest(stanza: Stanza) {
+
+    private fun addPendingSubscriptionRequest(context: Context, stanza: Stanza) {
         val fromJid = stanza.from.asBareJid()
-        if (!pendingRosterEntries.any { it == fromJid }) {
-            pendingRosterEntries.add(stanza)
+        if (!pendingRosterEntries.any { it.from == fromJid.toString() }) {
+            val simpleStanza = SimpleStanzaModel(
+                id = stanza.stanzaId,
+                to = stanza.to?.toString(),
+                from = fromJid.toString(),
+                type = AppPreferencesManager.getInstance(context).determineStanzaType(stanza)
+            )
+            pendingRosterEntries.add(simpleStanza)
             subscriptionUpdateListener?.invoke(pendingRosterEntries)
+            AppPreferencesManager.getInstance(context)
+                .savePendingSubscriptions(pendingRosterEntries)
         }
     }
+
 }

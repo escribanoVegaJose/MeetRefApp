@@ -11,9 +11,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.indra.iscs.meetrefapp.R
 import com.indra.iscs.meetrefapp.managers.XmppClientManager
-import org.jivesoftware.smack.packet.Stanza
+import com.indra.iscs.meetrefapp.models.SimpleStanzaModel
 
-class PendingRequestsAdapter(private var pendingRequests: List<Stanza>) :
+class PendingRequestsAdapter(private var pendingRequests: List<SimpleStanzaModel>) :
     RecyclerView.Adapter<PendingRequestsAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -34,7 +34,7 @@ class PendingRequestsAdapter(private var pendingRequests: List<Stanza>) :
         }
     }
 
-    private fun showFriendRequestDialog(context: Context, stanza: Stanza) {
+    private fun showFriendRequestDialog(context: Context, stanza: SimpleStanzaModel) {
         AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.friend_request))
             .setMessage(
@@ -71,7 +71,7 @@ class PendingRequestsAdapter(private var pendingRequests: List<Stanza>) :
     override fun getItemCount(): Int = pendingRequests.size
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateRequests(newRequests: List<Stanza>) {
+    fun updateRequests(newRequests: List<SimpleStanzaModel>) {
         pendingRequests = newRequests
         notifyDataSetChanged()
     }
