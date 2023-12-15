@@ -5,14 +5,13 @@ import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.indra.iscs.meetrefapp.models.SimpleStanzaModel
-import org.jivesoftware.smack.packet.IQ
-import org.jivesoftware.smack.packet.Message
-import org.jivesoftware.smack.packet.Presence
-import org.jivesoftware.smack.packet.Stanza
 
 class AppPreferencesManager private constructor(context: Context) {
-    private val sharedPreferences: SharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
     private val gson = Gson()
+    val PENDING_SUBSCRIPTIONS_KEY = "PENDING_SUBSCRIPTIONS"
+
     companion object {
         @Volatile
         private var INSTANCE: AppPreferencesManager? = null
@@ -28,20 +27,12 @@ class AppPreferencesManager private constructor(context: Context) {
 
     fun savePendingSubscriptions(stanzas: List<SimpleStanzaModel>) {
         val json = gson.toJson(stanzas)
-        sharedPreferences.edit().putString("PENDING_SUBSCRIPTIONS", json).apply()
+        sharedPreferences.edit().putString(PENDING_SUBSCRIPTIONS_KEY, json).apply()
     }
 
-     fun determineStanzaType(stanza: Stanza): String? {
-        return when (stanza) {
-            is Message -> "message"
-            is IQ -> "iq"
-            is Presence -> "presence"
-            else -> null
-        }
-    }
 
     fun loadPendingSubscriptions(): List<SimpleStanzaModel> {
-        val json = sharedPreferences.getString("PENDING_SUBSCRIPTIONS", null)
+        val json = sharedPreferences.getString(PENDING_SUBSCRIPTIONS_KEY, null)
         return if (json != null) {
             val type = object : TypeToken<List<SimpleStanzaModel>>() {}.type
             gson.fromJson(json, type)

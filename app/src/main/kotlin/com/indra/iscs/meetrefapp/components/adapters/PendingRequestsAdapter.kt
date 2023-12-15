@@ -59,10 +59,7 @@ class PendingRequestsAdapter(private var pendingRequests: List<SimpleStanzaModel
             }
             .setNegativeButton(context.getString(R.string.reject)) { dialog, _ ->
                 XmppClientManager.getInstance()
-                    .cancelSubscription(stanza.from)
-
-                XmppClientManager.getInstance()
-                    .removeContact(stanza.from)
+                    .rejectSubscription(stanza.from)
                 dialog.dismiss()
             }
             .show()

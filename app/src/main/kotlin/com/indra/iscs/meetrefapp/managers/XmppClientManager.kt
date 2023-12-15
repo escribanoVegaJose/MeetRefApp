@@ -3,6 +3,7 @@ package com.indra.iscs.meetrefapp.managers
 import android.content.Context
 import com.indra.iscs.meetrefapp.models.SimpleStanzaModel
 import com.indra.iscs.meetrefapp.utils.Constants
+import com.indra.iscs.meetrefapp.utils.StanzaUtils
 import org.jivesoftware.smack.AbstractXMPPConnection
 import org.jivesoftware.smack.ConnectionConfiguration
 import org.jivesoftware.smack.filter.StanzaTypeFilter
@@ -17,7 +18,6 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
 import org.jxmpp.jid.BareJid
 import org.jxmpp.jid.Jid
 import org.jxmpp.jid.impl.JidCreate
-
 class XmppClientManager() {
 
     private var user: String? = null
@@ -154,7 +154,7 @@ class XmppClientManager() {
         connection.sendStanza(presence)
     }
 
-    fun rejectSubscription(jid: String) {
+    fun rejectSubscription(jid: String?) {
         val bareJid: BareJid = JidCreate.bareFrom(jid)
         val presence = StanzaBuilder.buildPresence()
             .ofType(Presence.Type.unsubscribed)
@@ -222,12 +222,13 @@ class XmppClientManager() {
                 id = stanza.stanzaId,
                 to = stanza.to?.toString(),
                 from = fromJid.toString(),
-                type = AppPreferencesManager.getInstance(context).determineStanzaType(stanza)
+                type = StanzaUtils.determineStanzaType(stanza)
             )
             pendingRosterEntries.add(simpleStanza)
-            subscriptionUpdateListener?.invoke(pendingRosterEntries)
             AppPreferencesManager.getInstance(context)
                 .savePendingSubscriptions(pendingRosterEntries)
+            subscriptionUpdateListener?.invoke(pendingRosterEntries)
+
         }
     }
 
