@@ -50,7 +50,6 @@ class ContactsFragment : Fragment() {
     }
 
     private fun updateContactList(entries: List<RosterEntry>?) {
-
         if (entries.isNullOrEmpty()) {
             textViewNoContacts.visibility = View.VISIBLE
         } else {

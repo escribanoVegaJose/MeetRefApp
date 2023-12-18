@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.indra.iscs.meetrefapp.R
+import com.indra.iscs.meetrefapp.managers.AppPreferencesManager
 import com.indra.iscs.meetrefapp.managers.XmppClientManager
 import com.indra.iscs.meetrefapp.models.SimpleStanzaModel
 
@@ -45,10 +46,12 @@ class PendingRequestsAdapter(private var pendingRequests: List<SimpleStanzaModel
             )
             .setPositiveButton(context.getString(R.string.accept)) { dialog, _ ->
                 try {
-                    XmppClientManager.getInstance().getUserJid()?.let {
-                        XmppClientManager.getInstance()
-                            .acceptSubscription(stanza.from)
-                    }
+                    XmppClientManager.getInstance()
+                        .acceptSubscription(stanza.from)
+                    AppPreferencesManager.getInstance(context)
+                        .savePendingSubscriptions(XmppClientManager.getInstance().pendingRosterEntries)
+                    XmppClientManager.getInstance().requestSubscription(stanza.from,XmppClientManager.getInstance().getUserJid())
+                    XmppClientManager.getInstance().acceptSubscription(stanza.from, XmppClientManager.getInstance().getUserJid())
                 } catch (e: Exception) {
                     Toast.makeText(
                         context,

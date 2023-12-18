@@ -30,7 +30,6 @@ class AppPreferencesManager private constructor(context: Context) {
         sharedPreferences.edit().putString(PENDING_SUBSCRIPTIONS_KEY, json).apply()
     }
 
-
     fun loadPendingSubscriptions(): List<SimpleStanzaModel> {
         val json = sharedPreferences.getString(PENDING_SUBSCRIPTIONS_KEY, null)
         return if (json != null) {

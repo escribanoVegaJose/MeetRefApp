@@ -21,7 +21,7 @@
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:contentDescription="@string/content_description"
-            android:src="@mipmap/ic_launcher" />
+            android:src="@drawable/ic_person" />
 
         <View
             android:id="@+id/presence_indicator"
@@ -34,8 +34,8 @@
 
     <ImageButton
         android:id="@+id/options_menu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:clickable="true"
         android:contentDescription="@string/content_description"

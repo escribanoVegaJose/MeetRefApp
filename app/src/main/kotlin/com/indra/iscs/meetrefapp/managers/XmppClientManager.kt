@@ -18,6 +18,7 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
 import org.jxmpp.jid.BareJid
 import org.jxmpp.jid.Jid
 import org.jxmpp.jid.impl.JidCreate
+
 class XmppClientManager() {
 
     private var user: String? = null
@@ -26,7 +27,7 @@ class XmppClientManager() {
     private lateinit var roster: Roster
     var rosterUpdateListener: (() -> Unit)? = null
     var subscriptionUpdateListener: ((List<SimpleStanzaModel>) -> Unit)? = null
-    private val pendingRosterEntries = mutableListOf<SimpleStanzaModel>()
+    val pendingRosterEntries = mutableListOf<SimpleStanzaModel>()
 
 
     companion object {
@@ -119,12 +120,25 @@ class XmppClientManager() {
         }
     }
 
-    fun requestSubscription(userJid: String) {
+    fun requestSubscription(jid: String?) {
         try {
-            val jid = JidCreate.bareFrom(userJid)
+            val jid = JidCreate.bareFrom(jid)
             val presence = StanzaBuilder.buildPresence()
                 .ofType(Presence.Type.subscribe)
                 .to(jid)
+                .build()
+            connection.sendStanza(presence)
+        } catch (e: Exception) {
+            throw e
+        }
+    }    fun requestSubscription(jidTo: String?, jidFrom: String?) {
+        try {
+            val jidToBare = JidCreate.bareFrom(jidTo)
+            val jidFromBareJid = JidCreate.bareFrom(jidFrom)
+            val presence = StanzaBuilder.buildPresence()
+                .ofType(Presence.Type.subscribe)
+                .to(jidToBare)
+                .from(jidFromBareJid)
                 .build()
             connection.sendStanza(presence)
         } catch (e: Exception) {
@@ -140,6 +154,23 @@ class XmppClientManager() {
                 .to(JidCreate.bareFrom(bareJid))
                 .build()
             connection.sendStanza(presence)
+            pendingRosterEntries.removeAll { it.from == jidTo }
+            subscriptionUpdateListener?.invoke(pendingRosterEntries)
+        } catch (e: Exception) {
+            throw e
+        }
+    }    fun acceptSubscription(jidTo: String?, jidFrom: String?) {
+        try {
+            val bareJid: BareJid = JidCreate.bareFrom(jidTo)
+            val bareJidFrom: BareJid = JidCreate.bareFrom(jidFrom)
+            val presence = StanzaBuilder.buildPresence()
+                .ofType(Presence.Type.subscribed)
+                .from(bareJidFrom)
+                .to(JidCreate.bareFrom(bareJid))
+                .build()
+            connection.sendStanza(presence)
+            pendingRosterEntries.removeAll { it.from == jidTo }
+            subscriptionUpdateListener?.invoke(pendingRosterEntries)
         } catch (e: Exception) {
             throw e
         }
@@ -228,7 +259,6 @@ class XmppClientManager() {
             AppPreferencesManager.getInstance(context)
                 .savePendingSubscriptions(pendingRosterEntries)
             subscriptionUpdateListener?.invoke(pendingRosterEntries)
-
         }
     }
 
