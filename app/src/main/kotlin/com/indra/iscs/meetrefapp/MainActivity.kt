@@ -52,7 +52,6 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
     }
 
-
     private fun initBottomNavigation() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 

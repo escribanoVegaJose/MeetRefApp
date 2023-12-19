@@ -224,8 +224,8 @@ class XmppClientManager() {
         connection.sendStanza(presence)
 
         // Eliminar la entrada correspondiente de la lista de suscripciones pendientes
-//        pendingRosterEntries.removeAll { it.from == jidFrom }
-//        subscriptionUpdateListener?.invoke(pendingRosterEntries)
+        pendingRosterEntries.removeAll { it.from == jidTo }
+        subscriptionUpdateListener?.invoke(pendingRosterEntries)
     }
 
 
