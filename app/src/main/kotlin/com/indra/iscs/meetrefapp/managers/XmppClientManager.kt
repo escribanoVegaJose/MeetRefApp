@@ -25,10 +25,10 @@ class XmppClientManager() {
     private var password: String? = null
     private lateinit var connection: AbstractXMPPConnection
     private lateinit var roster: Roster
+    private var isWaitingToEntriesSubscribe = false
     var rosterUpdateListener: (() -> Unit)? = null
     var subscriptionUpdateListener: ((List<SimpleStanzaModel>) -> Unit)? = null
     val pendingRosterEntries = mutableListOf<SimpleStanzaModel>()
-
 
     companion object {
         @Volatile
@@ -103,6 +103,10 @@ class XmppClientManager() {
         }
     }
 
+    fun setIsWaitingToEntriesSubscribe(value: Boolean) {
+        isWaitingToEntriesSubscribe = value
+    }
+
     fun getUsername(): String? {
         return user
     }
@@ -122,16 +126,18 @@ class XmppClientManager() {
 
     fun requestSubscription(jid: String?) {
         try {
-            val jid = JidCreate.bareFrom(jid)
+            val bareJid = JidCreate.bareFrom(jid)
             val presence = StanzaBuilder.buildPresence()
                 .ofType(Presence.Type.subscribe)
-                .to(jid)
+                .to(bareJid)
                 .build()
             connection.sendStanza(presence)
         } catch (e: Exception) {
             throw e
         }
-    }    fun requestSubscription(jidTo: String?, jidFrom: String?) {
+    }
+
+    fun requestSubscription(jidTo: String?, jidFrom: String?) {
         try {
             val jidToBare = JidCreate.bareFrom(jidTo)
             val jidFromBareJid = JidCreate.bareFrom(jidFrom)
@@ -159,7 +165,9 @@ class XmppClientManager() {
         } catch (e: Exception) {
             throw e
         }
-    }    fun acceptSubscription(jidTo: String?, jidFrom: String?) {
+    }
+
+    fun acceptSubscription(jidTo: String?, jidFrom: String?) {
         try {
             val bareJid: BareJid = JidCreate.bareFrom(jidTo)
             val bareJidFrom: BareJid = JidCreate.bareFrom(jidFrom)
@@ -176,23 +184,45 @@ class XmppClientManager() {
         }
     }
 
-    fun cancelSubscription(jid: String?) {
-        val bareJid: BareJid = JidCreate.bareFrom(jid)
+    fun cancelSubscription(jidTo: String?) {
+        val bareJid: BareJid = JidCreate.bareFrom(jidTo)
         val presence = StanzaBuilder.buildPresence()
             .ofType(Presence.Type.unsubscribe)
-            .to(JidCreate.bareFrom(bareJid))
+            .to(bareJid)
             .build()
+        pendingRosterEntries.removeAll { it.from == jidTo }
+        subscriptionUpdateListener?.invoke(pendingRosterEntries)
         connection.sendStanza(presence)
     }
 
-    fun rejectSubscription(jid: String?) {
-        val bareJid: BareJid = JidCreate.bareFrom(jid)
+    fun cancelSubscription(jidTo: String?, jidFrom: String?) {
+        val bareJid: BareJid = JidCreate.bareFrom(jidTo)
+        val bareJidFrom: BareJid = JidCreate.bareFrom(jidFrom)
         val presence = StanzaBuilder.buildPresence()
-            .ofType(Presence.Type.unsubscribed)
-            .to(JidCreate.bareFrom(bareJid))
+            .ofType(Presence.Type.unsubscribe)
+            .to(bareJid)
+            .from(bareJidFrom)
             .build()
+        pendingRosterEntries.removeAll { it.from == jidTo }
+        subscriptionUpdateListener?.invoke(pendingRosterEntries)
         connection.sendStanza(presence)
     }
+
+    fun rejectSubscription(jidTo: String?, jidFrom: String?) {
+        val bareJidFrom: BareJid = JidCreate.bareFrom(jidFrom)
+        val bareJidTo: BareJid = JidCreate.bareFrom(jidTo)
+        val presence = StanzaBuilder.buildPresence()
+            .ofType(Presence.Type.unsubscribed)
+            .to(bareJidTo)
+            .from(bareJidFrom)
+            .build()
+        connection.sendStanza(presence)
+
+        // Eliminar la entrada correspondiente de la lista de suscripciones pendientes
+//        pendingRosterEntries.removeAll { it.from == jidFrom }
+//        subscriptionUpdateListener?.invoke(pendingRosterEntries)
+    }
+
 
     fun createGroupAndAddUser(groupId: String, userSelectedJid: String) {
         val roster = Roster.getInstanceFor(connection)
@@ -226,6 +256,11 @@ class XmppClientManager() {
             }
 
             override fun entriesUpdated(addresses: MutableCollection<Jid>?) {
+                if (isWaitingToEntriesSubscribe && !addresses.isNullOrEmpty()) {
+                    val firstAddress = addresses.first()
+                    acceptSubscription(firstAddress.toString(), getUserJid())
+                    isWaitingToEntriesSubscribe = false
+                }
                 notifyRosterUpdates()
             }
 

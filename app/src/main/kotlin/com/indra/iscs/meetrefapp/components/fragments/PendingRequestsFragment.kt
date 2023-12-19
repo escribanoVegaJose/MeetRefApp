@@ -60,7 +60,6 @@ class PendingRequestsFragment : Fragment() {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.basic_dialog_add, null)
         val editContactNameText = dialogView.findViewById<EditText>(R.id.editTextName)
         editContactNameText.hint = context.getString(R.string.enter_user_name)
-
         AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.add_user))
             .setView(dialogView)

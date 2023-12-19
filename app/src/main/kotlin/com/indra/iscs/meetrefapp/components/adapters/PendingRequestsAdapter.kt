@@ -51,7 +51,7 @@ class PendingRequestsAdapter(private var pendingRequests: List<SimpleStanzaModel
                     AppPreferencesManager.getInstance(context)
                         .savePendingSubscriptions(XmppClientManager.getInstance().pendingRosterEntries)
                     XmppClientManager.getInstance().requestSubscription(stanza.from,XmppClientManager.getInstance().getUserJid())
-                    XmppClientManager.getInstance().acceptSubscription(stanza.from, XmppClientManager.getInstance().getUserJid())
+                    XmppClientManager.getInstance().setIsWaitingToEntriesSubscribe(true)
                 } catch (e: Exception) {
                     Toast.makeText(
                         context,
@@ -61,8 +61,7 @@ class PendingRequestsAdapter(private var pendingRequests: List<SimpleStanzaModel
                 dialog.dismiss()
             }
             .setNegativeButton(context.getString(R.string.reject)) { dialog, _ ->
-                XmppClientManager.getInstance()
-                    .rejectSubscription(stanza.from)
+                XmppClientManager.getInstance().rejectSubscription(stanza.from, XmppClientManager.getInstance().getUserJid())
                 dialog.dismiss()
             }
             .show()

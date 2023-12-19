@@ -45,6 +45,7 @@ dependencies {
         exclude(mapOf("group" to "xpp3", "module" to "xpp3"))
         exclude(mapOf("group" to "xpp3", "module" to "xpp3_min"))
     }
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     implementation ("com.google.code.gson:gson:2.10")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
