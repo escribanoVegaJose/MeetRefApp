@@ -36,15 +36,20 @@ class MainActivity : AppCompatActivity() {
         rosterViewModel = ViewModelProvider(this).get()
         xmppClientManager.rosterUpdateListener = {
             rosterViewModel.loadRosterEntries()
+            progressBar.visibility = View.GONE
+
         }
         subscriptionViewModel = ViewModelProvider(this).get()
-        xmppClientManager.subscriptionUpdateListener={
+        xmppClientManager.subscriptionUpdateListener = {
             subscriptionViewModel.updatePendingSubscriptions(it)
+            progressBar.visibility = View.GONE
+
         }
     }
 
     private fun initViews() {
         progressBar = findViewById(R.id.progressBar_main)
+        progressBar.visibility = View.VISIBLE
     }
 
 
@@ -72,7 +77,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showFragment(fragment: Fragment) {
-        progressBar.visibility = View.GONE
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()

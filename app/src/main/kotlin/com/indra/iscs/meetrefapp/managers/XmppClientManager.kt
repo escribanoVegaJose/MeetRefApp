@@ -78,11 +78,16 @@ class XmppClientManager() {
     }
 
     fun getUpdatedRoster(): List<RosterEntry> {
-        if (connection.isConnected) {
-            roster.reloadAndWait()
-            return roster.entries.toList()
+        return try {
+            if (connection.isConnected) {
+                roster.reloadAndWait()
+                roster.entries.toList()
+            } else {
+                listOf()
+            }
+        } catch (e: Exception) {
+            listOf()
         }
-        return listOf()
     }
 
     fun getPendingRequests(): List<RosterEntry> {
@@ -252,15 +257,16 @@ class XmppClientManager() {
 
         roster.addRosterListener(object : RosterListener {
             override fun entriesAdded(addresses: MutableCollection<Jid>?) {
+                if (isWaitingToEntriesSubscribe && !addresses.isNullOrEmpty()) {
+                    val firstAddress = addresses.first()
+                    acceptSubscription(getUserJid(), firstAddress.toString())
+                    isWaitingToEntriesSubscribe = false
+                }
                 notifyRosterUpdates()
             }
 
             override fun entriesUpdated(addresses: MutableCollection<Jid>?) {
-                if (isWaitingToEntriesSubscribe && !addresses.isNullOrEmpty()) {
-                    val firstAddress = addresses.first()
-                    acceptSubscription(firstAddress.toString(), getUserJid())
-                    isWaitingToEntriesSubscribe = false
-                }
+
                 notifyRosterUpdates()
             }
 
