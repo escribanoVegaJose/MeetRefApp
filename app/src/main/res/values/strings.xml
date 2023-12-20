@@ -9,6 +9,7 @@
     <string name="no_name_available">No name available</string>
     <string name="create_group">Create group</string>
     <string name="add_user">Add user</string>
+    <string name="delete_user">Delete user</string>
     <string name="add">Add</string>
     <string name="enter_group_name">Enter group name</string>
     <string name="enter_user_name">Enter user name</string>
@@ -23,5 +24,6 @@
     <string name="accept">Accept</string>
     <string name="reject">Reject</string>
     <string name="tittle_friendly_request">Do you want to accept the friend request from %1$s?</string>
+    <string name="tittle_delete_request">Do you want to delete the friend with jid %1$s?</string>
     <string name="log_out">Log out</string>
 </resources>

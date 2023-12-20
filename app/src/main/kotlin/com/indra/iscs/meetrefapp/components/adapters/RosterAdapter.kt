@@ -64,11 +64,18 @@ class RosterAdapter(
 
     private fun showPopupMenu(view: View, position: Int) {
         val popup = PopupMenu(context, view)
+        val selectedEntry = rosterList[position]
+
         popup.menuInflater.inflate(R.menu.roster_item_menu, popup.menu)
         popup.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_create_group -> {
-                    showCreateGroupDialog(position)
+                    showCreateGroupDialog(selectedEntry)
+                    true
+                }
+
+                R.id.action_delete_user -> {
+                    showFriendDeleteRequestDialog(selectedEntry)
                     true
                 }
 
@@ -78,7 +85,7 @@ class RosterAdapter(
         popup.show()
     }
 
-    private fun showCreateGroupDialog(position: Int) {
+    private fun showCreateGroupDialog(currentRosterEntry: RosterEntry) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.basic_dialog_add, null)
         val editTextGroupName = dialogView.findViewById<EditText>(R.id.editTextName)
         editTextGroupName.hint = context.getString(R.string.enter_group_name)
@@ -88,8 +95,7 @@ class RosterAdapter(
             .setPositiveButton(context.getString(R.string.create)) { dialog, _ ->
                 val groupName = editTextGroupName.text.toString().trim()
                 if (groupName.isNotEmpty()) {
-                    val selectedEntry = rosterList[position]
-                    val userSelectedJid = selectedEntry.jid.asUnescapedString()
+                    val userSelectedJid = currentRosterEntry.jid.asUnescapedString()
 //                    val currentUserJid = xmppClientManager.getUserJid()
                     val uniqueId = UUID.randomUUID().toString()
                     val groupId =
@@ -107,6 +113,25 @@ class RosterAdapter(
             .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
                 dialog.cancel()
             }.show()
+    }
+
+    private fun showFriendDeleteRequestDialog(currentRosterEntry: RosterEntry) {
+        androidx.appcompat.app.AlertDialog.Builder(context)
+            .setTitle(context.getString(R.string.delete_user))
+            .setMessage(
+                context.getString(
+                    R.string.tittle_delete_request,
+                    currentRosterEntry.jid.asUnescapedString()
+                )
+            )
+            .setPositiveButton(context.getString(R.string.accept)) { dialog, _ ->
+                XmppClientManager.getInstance().removeContact(currentRosterEntry.jid.asUnescapedString())
+                dialog.dismiss()
+            }
+            .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     override fun getItemCount(): Int = rosterList.size

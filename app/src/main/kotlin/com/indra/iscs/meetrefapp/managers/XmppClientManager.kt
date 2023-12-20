@@ -21,6 +21,8 @@ import org.jxmpp.jid.impl.JidCreate
 
 class XmppClientManager() {
 
+    private val host: String = "192.168.56.245"
+    private val port: Int = 5222
     private var user: String? = null
     private var password: String? = null
     private lateinit var connection: AbstractXMPPConnection
@@ -47,8 +49,8 @@ class XmppClientManager() {
         val config = XMPPTCPConnectionConfiguration.builder()
             .setUsernameAndPassword(user, password)
             .setXmppDomain(Constants.DOMAIN)
-            .setHost("192.168.56.245")
-            .setPort(5222)
+            .setHost(host)
+            .setPort(port)
             .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
             .build()
 
@@ -127,6 +129,7 @@ class XmppClientManager() {
         entry?.let {
             roster.removeEntry(it)
         }
+        rosterUpdateListener?.invoke()
     }
 
     fun requestSubscription(jid: String?) {
@@ -228,7 +231,6 @@ class XmppClientManager() {
         subscriptionUpdateListener?.invoke(pendingRosterEntries)
     }
 
-
     fun createGroupAndAddUser(groupId: String, userSelectedJid: String) {
         val roster = Roster.getInstanceFor(connection)
         try {
@@ -266,7 +268,6 @@ class XmppClientManager() {
             }
 
             override fun entriesUpdated(addresses: MutableCollection<Jid>?) {
-
                 notifyRosterUpdates()
             }
 
