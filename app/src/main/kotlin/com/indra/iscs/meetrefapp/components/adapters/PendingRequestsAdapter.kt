@@ -10,7 +10,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.indra.iscs.meetrefapp.R
-import com.indra.iscs.meetrefapp.managers.AppPreferencesManager
 import com.indra.iscs.meetrefapp.managers.XmppClientManager
 import com.indra.iscs.meetrefapp.models.SimpleStanzaModel
 
@@ -48,9 +47,10 @@ class PendingRequestsAdapter(private var pendingRequests: List<SimpleStanzaModel
                 try {
                     XmppClientManager.getInstance()
                         .acceptSubscription(stanza.from)
-                    AppPreferencesManager.getInstance(context)
-                        .savePendingSubscriptions(XmppClientManager.getInstance().pendingRosterEntries)
-                    XmppClientManager.getInstance().requestSubscription(stanza.from,XmppClientManager.getInstance().getUserJid())
+                    XmppClientManager.getInstance().requestSubscription(
+                        stanza.from,
+                        XmppClientManager.getInstance().getUserJid()
+                    )
                     XmppClientManager.getInstance().setIsWaitingToEntriesSubscribe(true)
                 } catch (e: Exception) {
                     Toast.makeText(
@@ -61,7 +61,8 @@ class PendingRequestsAdapter(private var pendingRequests: List<SimpleStanzaModel
                 dialog.dismiss()
             }
             .setNegativeButton(context.getString(R.string.reject)) { dialog, _ ->
-                XmppClientManager.getInstance().rejectSubscription(stanza.from, XmppClientManager.getInstance().getUserJid())
+                XmppClientManager.getInstance()
+                    .rejectSubscription(stanza.from, XmppClientManager.getInstance().getUserJid())
                 dialog.dismiss()
             }
             .show()

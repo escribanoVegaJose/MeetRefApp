@@ -1,11 +1,12 @@
 package com.indra.iscs.meetrefapp.managers
 
-import android.content.Context
 import com.indra.iscs.meetrefapp.models.SimpleStanzaModel
 import com.indra.iscs.meetrefapp.utils.Constants
 import com.indra.iscs.meetrefapp.utils.StanzaUtils
 import org.jivesoftware.smack.AbstractXMPPConnection
 import org.jivesoftware.smack.ConnectionConfiguration
+import org.jivesoftware.smack.bosh.BOSHConfiguration
+import org.jivesoftware.smack.bosh.XMPPBOSHConnection
 import org.jivesoftware.smack.filter.StanzaTypeFilter
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.packet.Stanza
@@ -21,8 +22,6 @@ import org.jxmpp.jid.impl.JidCreate
 
 class XmppClientManager() {
 
-    private val host: String = "192.168.56.245"
-    private val port: Int = 5222
     private var user: String? = null
     private var password: String? = null
     private lateinit var connection: AbstractXMPPConnection
@@ -43,24 +42,41 @@ class XmppClientManager() {
         }
     }
 
-    fun connect(username: String, pwd: String, context: Context): Boolean {
+
+
+    fun connect(username: String, pwd: String, connectionType: ConnectionType): Boolean {
         user = username
         password = pwd
-        val config = XMPPTCPConnectionConfiguration.builder()
-            .setUsernameAndPassword(user, password)
-            .setXmppDomain(Constants.DOMAIN)
-            .setHost(host)
-            .setPort(port)
-            .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
-            .build()
 
-        connection = XMPPTCPConnection(config)
+        val config = when (connectionType) {
+            ConnectionType.TCP -> XMPPTCPConnectionConfiguration.builder()
+                .setUsernameAndPassword(user, password)
+                .setXmppDomain(Constants.DOMAIN_LOCALHOST)
+                .setHost(Constants.HOST_IP_LOCALHOST)
+                .setPort(Constants.LOCAL_PORT)
+                .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
+                .build()
+
+            ConnectionType.BOSH -> BOSHConfiguration.builder()
+                .setUsernameAndPassword(user, password)
+                .setXmppDomain(Constants.DOMAIN_DEV)
+                .setFile("/http-bind/")
+                .setHost(Constants.HOST_IP_DEV)
+                .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
+                .build()
+        }
+
+        connection = when (connectionType) {
+            ConnectionType.TCP -> XMPPTCPConnection(config as XMPPTCPConnectionConfiguration)
+            ConnectionType.BOSH -> XMPPBOSHConnection(config as BOSHConfiguration)
+        }
+
         return try {
             connection.connect().login()
             if (!this::roster.isInitialized) {
                 roster = Roster.getInstanceFor(connection)
                 roster.subscriptionMode = Roster.SubscriptionMode.manual
-                initializeRoster(context)
+                initializeRoster()
             }
             true
         } catch (e: Exception) {
@@ -254,9 +270,8 @@ class XmppClientManager() {
         }
     }
 
-    private fun initializeRoster(context: Context) {
+    private fun initializeRoster() {
         roster = Roster.getInstanceFor(connection)
-
         roster.addRosterListener(object : RosterListener {
             override fun entriesAdded(addresses: MutableCollection<Jid>?) {
                 if (isWaitingToEntriesSubscribe && !addresses.isNullOrEmpty()) {
@@ -278,17 +293,16 @@ class XmppClientManager() {
             override fun presenceChanged(presence: Presence?) {
                 notifyRosterUpdates()
             }
-
         })
         val presenceFilter = StanzaTypeFilter(Presence::class.java)
         connection.addAsyncStanzaListener({ stanza ->
             if (stanza is Presence && stanza.type == Presence.Type.subscribe) {
-                addPendingSubscriptionRequest(context, stanza)
+                addPendingSubscriptionRequest(stanza)
             }
         }, presenceFilter)
     }
 
-    private fun addPendingSubscriptionRequest(context: Context, stanza: Stanza) {
+    private fun addPendingSubscriptionRequest( stanza: Stanza) {
         val fromJid = stanza.from.asBareJid()
         if (!pendingRosterEntries.any { it.from == fromJid.toString() }) {
             val simpleStanza = SimpleStanzaModel(
@@ -298,10 +312,7 @@ class XmppClientManager() {
                 type = StanzaUtils.determineStanzaType(stanza)
             )
             pendingRosterEntries.add(simpleStanza)
-            AppPreferencesManager.getInstance(context)
-                .savePendingSubscriptions(pendingRosterEntries)
             subscriptionUpdateListener?.invoke(pendingRosterEntries)
         }
     }
-
 }

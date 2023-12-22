@@ -11,6 +11,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.indra.iscs.meetrefapp.components.fragments.ContactsFragment
 import com.indra.iscs.meetrefapp.components.fragments.PendingRequestsFragment
 import com.indra.iscs.meetrefapp.components.fragments.ProfileFragment
+import com.indra.iscs.meetrefapp.managers.AppPreferencesManager
+import com.indra.iscs.meetrefapp.managers.ConnectionType
 import com.indra.iscs.meetrefapp.managers.XmppClientManager
 import com.indra.iscs.meetrefapp.viewmodels.RosterViewModel
 import com.indra.iscs.meetrefapp.viewmodels.SubscriptionViewModel
@@ -42,6 +44,9 @@ class MainActivity : AppCompatActivity() {
         subscriptionViewModel = ViewModelProvider(this).get()
         xmppClientManager.subscriptionUpdateListener = {
             subscriptionViewModel.updatePendingSubscriptions(it)
+
+            AppPreferencesManager.getInstance(this)
+                .savePendingSubscriptions(it)
             progressBar.visibility = View.GONE
 
         }
@@ -67,7 +72,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun connectToServer() {
         activityScope.launch {
-            if (xmppClientManager.connect("jose2", "1234", applicationContext)) {
+            if (xmppClientManager.connect("jose2", "1234", ConnectionType.TCP)) {
                 showFragment(ContactsFragment())
             } else {
                 // Connection failed

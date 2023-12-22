@@ -10,7 +10,7 @@ class AppPreferencesManager private constructor(context: Context) {
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
     private val gson = Gson()
-    val PENDING_SUBSCRIPTIONS_KEY = "PENDING_SUBSCRIPTIONS"
+    private val pendingSubscriptionsKey = "PENDING_SUBSCRIPTIONS"
 
     companion object {
         @Volatile
@@ -27,11 +27,11 @@ class AppPreferencesManager private constructor(context: Context) {
 
     fun savePendingSubscriptions(stanzas: List<SimpleStanzaModel>) {
         val json = gson.toJson(stanzas)
-        sharedPreferences.edit().putString(PENDING_SUBSCRIPTIONS_KEY, json).apply()
+        sharedPreferences.edit().putString(pendingSubscriptionsKey, json).apply()
     }
 
     fun loadPendingSubscriptions(): List<SimpleStanzaModel> {
-        val json = sharedPreferences.getString(PENDING_SUBSCRIPTIONS_KEY, null)
+        val json = sharedPreferences.getString(pendingSubscriptionsKey, null)
         return if (json != null) {
             val type = object : TypeToken<List<SimpleStanzaModel>>() {}.type
             gson.fromJson(json, type)
