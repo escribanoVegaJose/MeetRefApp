@@ -58,7 +58,4 @@ class ContactsFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
 }

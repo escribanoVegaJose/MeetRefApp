@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
             if (xmppClientManager.connect("jose2", "1234", ConnectionType.TCP)) {
                 showFragment(ContactsFragment())
             } else {
-                // Connection failed
+                progressBar.visibility = View.GONE
             }
         }
     }

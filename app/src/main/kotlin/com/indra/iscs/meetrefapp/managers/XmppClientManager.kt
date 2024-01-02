@@ -1,5 +1,6 @@
 package com.indra.iscs.meetrefapp.managers
 
+import android.util.Log
 import com.indra.iscs.meetrefapp.models.SimpleStanzaModel
 import com.indra.iscs.meetrefapp.utils.Constants
 import com.indra.iscs.meetrefapp.utils.StanzaUtils
@@ -34,6 +35,7 @@ class XmppClientManager() {
     companion object {
         @Volatile
         private var instance: XmppClientManager? = null
+        private const val TAG = "XmppClientManager"
 
         fun getInstance(): XmppClientManager {
             return instance ?: synchronized(this) {
@@ -41,8 +43,6 @@ class XmppClientManager() {
             }
         }
     }
-
-
 
     fun connect(username: String, pwd: String, connectionType: ConnectionType): Boolean {
         user = username
@@ -56,16 +56,15 @@ class XmppClientManager() {
                 .setPort(Constants.LOCAL_PORT)
                 .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                 .build()
-
             ConnectionType.BOSH -> BOSHConfiguration.builder()
                 .setUsernameAndPassword(user, password)
                 .setXmppDomain(Constants.DOMAIN_DEV)
-                .setFile("/http-bind/")
-                .setHost(Constants.HOST_IP_DEV)
+                .setHost(Constants.DOMAIN_DEV)
+                .setFile("/http-bind")
+                .setPort(Constants.DEV_PORT)
                 .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                 .build()
         }
-
         connection = when (connectionType) {
             ConnectionType.TCP -> XMPPTCPConnection(config as XMPPTCPConnectionConfiguration)
             ConnectionType.BOSH -> XMPPBOSHConnection(config as BOSHConfiguration)
@@ -80,7 +79,7 @@ class XmppClientManager() {
             }
             true
         } catch (e: Exception) {
-            e.printStackTrace()
+            e.message?.let { Log.e(TAG, it) }
             false
         }
     }
@@ -269,7 +268,15 @@ class XmppClientManager() {
             throw e
         }
     }
+    // Separate method to set the nickname
+    private fun setNicknameForRosterEntry(jid: Jid) {
+        val nickname = jid.localpartOrNull?.toString()
 
+        val rosterEntry = roster.getEntry(jid.asBareJid())
+        if (nickname != null && rosterEntry != null) {
+            rosterEntry.name = nickname
+        }
+    }
     private fun initializeRoster() {
         roster = Roster.getInstanceFor(connection)
         roster.addRosterListener(object : RosterListener {
@@ -277,6 +284,7 @@ class XmppClientManager() {
                 if (isWaitingToEntriesSubscribe && !addresses.isNullOrEmpty()) {
                     val firstAddress = addresses.first()
                     acceptSubscription(getUserJid(), firstAddress.toString())
+                    setNicknameForRosterEntry(firstAddress)
                     isWaitingToEntriesSubscribe = false
                 }
                 notifyRosterUpdates()
