@@ -21,8 +21,7 @@ import org.jxmpp.jid.BareJid
 import org.jxmpp.jid.Jid
 import org.jxmpp.jid.impl.JidCreate
 
-class XmppClientManager() {
-
+class XmppManager() {
     private var user: String? = null
     private var password: String? = null
     private lateinit var connection: AbstractXMPPConnection
@@ -30,16 +29,16 @@ class XmppClientManager() {
     private var isWaitingToEntriesSubscribe = false
     var rosterUpdateListener: (() -> Unit)? = null
     var subscriptionUpdateListener: ((List<SimpleStanzaModel>) -> Unit)? = null
-    val pendingRosterEntries = mutableListOf<SimpleStanzaModel>()
+    private val pendingRosterEntries = mutableListOf<SimpleStanzaModel>()
 
     companion object {
         @Volatile
-        private var instance: XmppClientManager? = null
+        private var instance: XmppManager? = null
         private const val TAG = "XmppClientManager"
 
-        fun getInstance(): XmppClientManager {
+        fun getInstance(): XmppManager {
             return instance ?: synchronized(this) {
-                instance ?: XmppClientManager().also { instance = it }
+                instance ?: XmppManager().also { instance = it }
             }
         }
     }

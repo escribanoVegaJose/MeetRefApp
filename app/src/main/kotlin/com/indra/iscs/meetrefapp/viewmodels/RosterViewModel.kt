@@ -3,7 +3,7 @@ package com.indra.iscs.meetrefapp.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.indra.iscs.meetrefapp.managers.XmppClientManager
+import com.indra.iscs.meetrefapp.managers.XmppManager
 import org.jivesoftware.smack.roster.RosterEntry
 
 class RosterViewModel : ViewModel() {
@@ -11,7 +11,7 @@ class RosterViewModel : ViewModel() {
     val rosterEntries: LiveData<List<RosterEntry>> = _rosterEntries
 
     fun loadRosterEntries() {
-        val entries = XmppClientManager.getInstance().getUpdatedRoster()
+        val entries = XmppManager.getInstance().getUpdatedRoster()
         _rosterEntries.postValue(entries)
     }
 }

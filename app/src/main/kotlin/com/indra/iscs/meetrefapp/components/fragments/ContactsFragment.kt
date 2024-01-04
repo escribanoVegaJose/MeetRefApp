@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.indra.iscs.meetrefapp.R
 import com.indra.iscs.meetrefapp.components.adapters.RosterAdapter
-import com.indra.iscs.meetrefapp.managers.XmppClientManager
+import com.indra.iscs.meetrefapp.managers.XmppManager
 import com.indra.iscs.meetrefapp.viewmodels.RosterViewModel
 import org.jivesoftware.smack.roster.RosterEntry
 
@@ -36,7 +36,7 @@ class ContactsFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerview_roster)
         textViewNoContacts = view.findViewById(R.id.textView_no_contacts)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        rosterAdapter = RosterAdapter(XmppClientManager.getInstance(), requireContext())
+        rosterAdapter = RosterAdapter(XmppManager.getInstance(), requireContext())
         recyclerView.adapter = rosterAdapter
         setupRosterListener()
     }

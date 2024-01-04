@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.indra.iscs.meetrefapp.R
 import com.indra.iscs.meetrefapp.components.adapters.PendingRequestsAdapter
-import com.indra.iscs.meetrefapp.managers.XmppClientManager
+import com.indra.iscs.meetrefapp.managers.XmppManager
 import com.indra.iscs.meetrefapp.models.SimpleStanzaModel
 import com.indra.iscs.meetrefapp.utils.Constants
 import com.indra.iscs.meetrefapp.viewmodels.SubscriptionViewModel
@@ -66,7 +66,7 @@ class PendingRequestsFragment : Fragment() {
             .setPositiveButton(context.getString(R.string.add)) { dialog, _ ->
                 val contactName = editContactNameText.text.toString().trim()
                 if (contactName.isNotEmpty()) {
-                    XmppClientManager.getInstance()
+                    XmppManager.getInstance()
                         .requestSubscription(contactName + Constants.JID_DOMAIN)
                 } else {
                     Toast.makeText(

@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.indra.iscs.meetrefapp.R
-import com.indra.iscs.meetrefapp.managers.XmppClientManager
+import com.indra.iscs.meetrefapp.managers.XmppManager
 
 class ProfileFragment : Fragment() {
 
@@ -29,7 +29,7 @@ class ProfileFragment : Fragment() {
         imageViewProfile = view.findViewById(R.id.imageView_profile)
         textViewJid = view.findViewById(R.id.textView_jid)
         textViewUsername = view.findViewById(R.id.textView_username)
-        textViewJid.text = XmppClientManager.getInstance().getUserJid()
-        textViewUsername.text = XmppClientManager.getInstance().getUsername()
+        textViewJid.text = XmppManager.getInstance().getUserJid()
+        textViewUsername.text = XmppManager.getInstance().getUsername()
     }
 }

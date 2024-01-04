@@ -13,13 +13,13 @@ import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.indra.iscs.meetrefapp.R
-import com.indra.iscs.meetrefapp.managers.XmppClientManager
+import com.indra.iscs.meetrefapp.managers.XmppManager
 import org.jivesoftware.smack.packet.Presence
 import org.jivesoftware.smack.roster.RosterEntry
 import java.util.UUID
 
 class RosterAdapter(
-    private val xmppClientManager: XmppClientManager,
+    private val xmppManager: XmppManager,
     private val context: Context
 ) : RecyclerView.Adapter<RosterAdapter.RosterViewHolder>() {
 
@@ -41,7 +41,7 @@ class RosterAdapter(
         val rosterEntry = rosterList[position]
         holder.textViewJid.text = rosterEntry.jid.asUnescapedString()
         holder.textViewName.text = rosterEntry.name ?: context.getString(R.string.no_name_available)
-        val presence = xmppClientManager.getPresence(rosterEntry.jid.asUnescapedString())
+        val presence = xmppManager.getPresence(rosterEntry.jid.asUnescapedString())
         when {
             presence.isAvailable && presence.mode == Presence.Mode.available -> holder.presenceIndicator.setBackgroundResource(
                 R.drawable.presence_online
@@ -101,7 +101,7 @@ class RosterAdapter(
                     val groupId =
                         "${groupName}/${uniqueId}"
                     userSelectedJid
-                        ?.let { xmppClientManager.createGroupAndAddUser(groupId, it) }
+                        ?.let { xmppManager.createGroupAndAddUser(groupId, it) }
                 } else {
                     Toast.makeText(
                         context,
@@ -125,7 +125,7 @@ class RosterAdapter(
                 )
             )
             .setPositiveButton(context.getString(R.string.accept)) { dialog, _ ->
-                XmppClientManager.getInstance().removeContact(currentRosterEntry.jid.asUnescapedString())
+                XmppManager.getInstance().removeContact(currentRosterEntry.jid.asUnescapedString())
                 dialog.dismiss()
             }
             .setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
